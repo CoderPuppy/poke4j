@@ -1,0 +1,28 @@
+ext {
+	info = [
+		name: 'poke4j',
+		group: 'cpup.poke4j',
+		version: 'dev',
+		dependencies: []
+	]
+}
+
+apply plugin: 'java'
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+}
+
+dependencies {
+	info.dependencies.each { dep ->
+		compile dep
+	}
+}
+
+apply plugin: 'maven'
+apply plugin: 'idea'
+
+archivesBaseName = info.name
+group = info.group
+version = info.version
