@@ -1,8 +1,10 @@
 package cpup.poke4j.plugin;
 
 import cpup.poke4j.Buffer;
+import cpup.poke4j.LogMessage;
 import cpup.poke4j.Poke;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CommandRun {
@@ -10,6 +12,7 @@ public class CommandRun {
 	protected final Buffer buffer;
 	protected final ICommand command;
 	protected final List<Object> args;
+	protected final List<LogMessage> log = new ArrayList<LogMessage>(50);
 	protected Status status;
 
 	public CommandRun(Poke _poke, Buffer _buffer, ICommand _command, List<Object> _args) {
@@ -139,5 +142,9 @@ public class CommandRun {
 
 	public Status getStatus() {
 		return status;
+	}
+
+	public List<LogMessage> getLog() {
+		return log;
 	}
 }
