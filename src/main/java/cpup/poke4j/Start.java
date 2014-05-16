@@ -16,12 +16,14 @@ public class Start {
 
 		final Buffer buffer = poke.getCurrentBuffer();
 
-		buffer.apply(new InsertOperation(-1, -1, "Hello"));
-		buffer.apply(new InsertOperation(-1, -1, "\nWorld"));
-		buffer.apply(new InsertOperation(-1, -2, "\nfoo\nbar\nbaz"));
+//		buffer.insert(-1, -1, "Hello");
+//		buffer.insert(-1, -1, "\nWorld");
+//		buffer.insert(-1, -2, "\nfoo\nbar\nbaz");
 
-//		new CommandRun(poke, LoadCommand.get(), Arrays.asList(new Object[] { "test.txt" })).invoke();
+		new CommandRun(poke, LoadCommand.get(), Arrays.asList(new Object[] { "test.txt" })).invoke();
+
 		new CommandRun(poke, SaveCommand.get(), Arrays.asList(new Object[] { "test.txt" })).invoke();
+
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {

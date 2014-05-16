@@ -3,7 +3,9 @@ package cpup.poke4j;
 import com.google.common.base.Joiner;
 import cpup.poke4j.events.EventRegister;
 import cpup.poke4j.operations.IOperation;
+import cpup.poke4j.operations.InsertOperation;
 import cpup.poke4j.operations.OperationData;
+import cpup.poke4j.operations.RemoveOperation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +47,14 @@ public abstract class Buffer {
 		}
 
 		return column;
+	}
+
+	// Wrappers for InsertOperation and RemoveOperation for ease of use
+	public Buffer insert(int column, int line, String text) {
+		return apply(new InsertOperation(column, line, text));
+	}
+	public Buffer remove(int column, int line, int length) {
+		return apply(new RemoveOperation(column, line, length));
 	}
 
 	// The buffer handles inserting and deleting so it can have a different data structure

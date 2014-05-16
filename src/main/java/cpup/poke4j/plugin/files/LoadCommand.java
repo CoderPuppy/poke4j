@@ -34,11 +34,11 @@ public class LoadCommand implements ICommand {
 			String line;
 			int i = 0;
 			while((line = reader.readLine()) != null) {
-				buffer.insertImpl(0, i, line + "\n");
+				buffer.insert(0, i, line + "\n");
 				i++;
 			}
 			reader.close();
-			buffer.removeImpl(-1, -1, 1);
+			buffer.remove(-1, -2, 1);
 		} else {
 			throw new FileNotFoundException("No file named: " + path);
 		}

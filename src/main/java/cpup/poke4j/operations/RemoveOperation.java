@@ -20,7 +20,13 @@ public class RemoveOperation implements IOperation<RemoveOperation.Data> {
 		final int realLine = buffer.findLine(line);
 		final int realColumn = buffer.findColumn(column, line);
 
-		return new Data(buffer, this, realColumn, realLine, buffer.removeImpl(realColumn, realLine, length));
+		String removedText = buffer.removeImpl(realColumn, realLine, length);
+//		System.out.println("removedText: [" + removedText + "], realColumn = " + realColumn +
+//		                   ", realLine = " + realLine +
+//		                   ", line = " + line +
+//		                   ", column = " + column +
+//		                   ", length = " + length);
+		return new Data(buffer, this, realColumn, realLine, removedText);
 	}
 
 	public static class Data extends OperationData<RemoveOperation> {
