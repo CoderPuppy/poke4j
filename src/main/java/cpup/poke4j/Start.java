@@ -21,7 +21,7 @@ public class Start {
 		buffer.apply(new InsertOperation(-1, -2, "\nfoo\nbar\nbaz"));
 
 //		new CommandRun(poke, LoadCommand.get(), Arrays.asList(new Object[] { "test.txt" })).invoke();
-//		new CommandRun(poke, SaveCommand.get(), Arrays.asList(new Object[] { "test.txt" })).invoke();
+		new CommandRun(poke, SaveCommand.get(), Arrays.asList(new Object[] { "test.txt" })).invoke();
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
