@@ -3,7 +3,9 @@ ext {
 		name: 'poke4j',
 		group: 'cpup.poke4j',
 		version: 'dev',
-		dependencies: []
+		dependencies: [
+			'com.google.guava:guava:17.0'
+		]
 	]
 }
 

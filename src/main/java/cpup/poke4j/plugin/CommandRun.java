@@ -3,6 +3,7 @@ package cpup.poke4j.plugin;
 import cpup.poke4j.Buffer;
 import cpup.poke4j.LogMessage;
 import cpup.poke4j.Poke;
+import cpup.poke4j.events.EventRegister;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,11 +24,77 @@ public class CommandRun {
 		status = Status.PreStart.get();
 	}
 
-	public void invoke() {
+	public CommandRun(Poke _poke, ICommand _command, List<Object> _args) {
+		this(_poke, _poke.getCurrentBuffer(), _command, _args);
+	}
+
+	public CommandRun invoke() {
 		if(status instanceof Status.PreStart) {
 			status = Status.Starting.get();
-			command.invoke(this);
-			status = Status.Running.get();
+			try {
+				command.invoke(this);
+				status = Status.Running.get();
+			} catch(Exception e) {
+				error(e);
+			}
+		}
+		return this;
+	}
+
+	public CommandRun done() {
+		if(status instanceof Status.Starting || status instanceof Status.Running) {
+			status = Status.Success.get();
+			SuccessEvent event = new SuccessEvent(this);
+			doneEv.emit(event);
+			successEv.emit(event);
+		}
+		return this;
+	}
+
+	public CommandRun error(Exception e) {
+		if(status instanceof Status.Starting || status instanceof Status.Running) {
+			log.add(new LogMessage.Error(e));
+			status = new Status.Error(e);
+			ErrorEvent event = new ErrorEvent(this, e);
+			doneEv.emit(event);
+			errorEv.emit(event);
+		}
+		return this;
+	}
+
+	public EventRegister<DoneEvent> doneEv = new EventRegister<DoneEvent>();
+	public static abstract class DoneEvent {
+		protected final CommandRun run;
+
+		public DoneEvent(CommandRun _run) {
+			run = _run;
+		}
+
+		// Getters and Setters
+		public CommandRun getRun() {
+			return run;
+		}
+	}
+
+	public EventRegister<SuccessEvent> successEv = new EventRegister<SuccessEvent>();
+	public static class SuccessEvent extends DoneEvent {
+		public SuccessEvent(CommandRun _run) {
+			super(_run);
+		}
+	}
+
+	public EventRegister<ErrorEvent> errorEv = new EventRegister<ErrorEvent>();
+	public static class ErrorEvent extends DoneEvent {
+		protected final Exception error;
+
+		public ErrorEvent(CommandRun _run, Exception _error) {
+			super(_run);
+			error = _error;
+		}
+
+		// Getters and Setters
+		public Exception getError() {
+			return error;
 		}
 	}
 
@@ -91,7 +158,7 @@ public class CommandRun {
 
 			private static Success instance;
 
-			public Success get() {
+			public static Success get() {
 				if(instance == null) {
 					instance = new Success();
 				}
