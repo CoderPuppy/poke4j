@@ -15,15 +15,7 @@ public abstract class Buffer {
 		poke = _poke;
 	}
 
-	// Getters and Setters
-	public Poke getPoke() {
-		return poke;
-	}
-	public abstract List<String> getLines();
-	public String getText() {
-		return Joiner.on("\n").join(getLines());
-	}
-
+	// Get the real line to operate on (so if the line doesn't exist it goes to the last one that does)
 	public int findLine(int line) {
 		final List<String> lines = getLines();
 
@@ -32,12 +24,13 @@ public abstract class Buffer {
 		}
 
 		if(line < 0) {
-			line = lines.size() + line;
+			line = Math.max(lines.size() + line, 0);
 		}
 
 		return line;
 	}
 
+	// Get the real column
 	public int findColumn(int column, int line) {
 		line = findLine(line);
 
@@ -48,7 +41,7 @@ public abstract class Buffer {
 		}
 
 		if(column < 0) {
-			column = existingLine.length() + column;
+			column = Math.max(existingLine.length() + column + 1, 0);
 		}
 
 		return column;
@@ -59,13 +52,15 @@ public abstract class Buffer {
 	public abstract String removeImpl(int column, int line, int length);
 
 	protected List<OperationData> history = new ArrayList<OperationData>();
+	// Whatever historyPointer points to has already been applied, anything before has also been applied and anything after hasn't
 	protected int historyPointer = -1;
+
 	public <OP extends IOperation<OD>, OD extends OperationData<OP>> Buffer apply(OP operation, boolean addToHistory) {
 		OD data = operation.apply(this);
 
 		if(addToHistory) {
 			// Remove all the entries after this
-			history = history.subList(0, historyPointer);
+			history = history.subList(0, historyPointer + 1);
 			history.add(historyPointer + 1, data);
 			historyPointer += 1;
 		}
@@ -78,29 +73,7 @@ public abstract class Buffer {
 		return apply(operation, true);
 	}
 
-	public Buffer undo() {
-		if(historyPointer > -1) {
-			history.get(historyPointer).unapply();
-			historyPointer -= 1;
-		} else {
-			throw new IndexOutOfBoundsException("Nothing to undo");
-		}
-
-		return this;
-	}
-
-	@SuppressWarnings("unchecked")
-	public Buffer redo() {
-		if(historyPointer < history.size() - 1) {
-			historyPointer += 1;
-			apply(history.get(historyPointer).getOperation(), false);
-		} else {
-			throw new IndexOutOfBoundsException("Nothing to redo");
-		}
-
-		return this;
-	}
-
+	// Fired when an operation is applied (whether it's added to the history or not)
 	public final EventRegister<ApplyOperationEvent> applyOperationEv = new EventRegister<ApplyOperationEvent>();
 	public static class ApplyOperationEvent<OP extends IOperation<OD>, OD extends OperationData<OP>> {
 		protected final Poke poke;
@@ -131,5 +104,49 @@ public abstract class Buffer {
 		public OD getData() {
 			return data;
 		}
+	}
+
+	public Buffer undo() {
+		// If there's something to undo (historyPointer points to an operation)
+		if(historyPointer > -1) {
+			history.get(historyPointer).unapply();
+			historyPointer -= 1;
+		} else {
+			throw new IndexOutOfBoundsException("Nothing to undo");
+		}
+
+		return this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public Buffer redo() {
+		// If there is something to redo (historyPointer doesn't point to the last operation)
+		if(historyPointer < history.size() - 1) {
+			historyPointer += 1;
+			apply(history.get(historyPointer).getOperation(), false);
+		} else {
+			throw new IndexOutOfBoundsException("Nothing to redo");
+		}
+
+		return this;
+	}
+
+	// Getters and Setters
+	public Poke getPoke() {
+		return poke;
+	}
+
+	public abstract List<String> getLines();
+
+	public String getText() {
+		return Joiner.on("\n").join(getLines());
+	}
+
+	public List<OperationData> getHistory() {
+		return history;
+	}
+
+	public int getHistoryPointer() {
+		return historyPointer;
 	}
 }

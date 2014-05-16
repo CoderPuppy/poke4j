@@ -27,21 +27,31 @@ public class TextBuffer extends Buffer {
 	@Override
 	public int insertImpl(int column, int line, String text) {
 		List<String> newLines = Splitter.on(CharMatcher.anyOf("\n")).splitToList(text);
+		// The first line of text
 		String firstLine = newLines.get(0);
+		// The last line of text (null if it only one line)
 		String lastLine = newLines.size() > 1 ? newLines.get(newLines.size() - 1) : null;
+		// The rest of the lines to insert between
 		newLines = newLines.subList(1, Math.max(newLines.size() - 2, 1));
 
 		String existingLine = lines.get(line);
 
+		// The part of the original line that should stay (before column)
 		String stay = existingLine.substring(0, column);
+		// The part of the original line that should be moved (after column)
 		String move = existingLine.substring(column);
 
+		// If text spans multiple lines
 		if(lastLine != null) {
+			// Add the first line to the line it's inserting at
 			lines.set(line, stay + firstLine);
-			lines.add(line + 1, move + lastLine);
+			// And add the last line after it (with the rest of the original line)
+			lines.add(line + 1, lastLine + move);
 		} else {
+			// Insert it in the middle of the original line
 			lines.set(line, stay + firstLine + move);
 		}
+		// Add the rest of the lines between
 		lines.addAll(line + 1, newLines);
 
 //		System.out.println("[ " + Joiner.on(", ").join(new String[] {
