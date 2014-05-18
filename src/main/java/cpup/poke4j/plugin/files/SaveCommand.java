@@ -21,7 +21,7 @@ public class SaveCommand implements ICommand {
 	public void invoke(CommandRun run) throws Exception {
 		String path = (String) run.getArgs().get(0);
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(path)));
-		writer.write(run.getBuffer().getText());
+		run.getBuffer().save(writer);
 		writer.close();
 	}
 }

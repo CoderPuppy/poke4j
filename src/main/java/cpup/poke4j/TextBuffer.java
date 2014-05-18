@@ -6,6 +6,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.FluentIterable;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,6 +106,20 @@ public class TextBuffer extends Buffer {
 		}
 
 		return removedContent;
+	}
+
+	@Override
+	public void load(BufferedReader reader) throws Exception {
+		lines.clear();
+		String line;
+		while((line = reader.readLine()) != null) {
+			lines.add(line);
+		}
+	}
+
+	@Override
+	public void save(BufferedWriter writer) throws Exception {
+		writer.write(Joiner.on('\n').join(lines));
 	}
 
 	// Getters and Setters

@@ -7,6 +7,8 @@ import cpup.poke4j.operations.InsertOperation;
 import cpup.poke4j.operations.OperationData;
 import cpup.poke4j.operations.RemoveOperation;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +62,11 @@ public abstract class Buffer {
 	// The buffer handles inserting and deleting so it can have a different data structure
 	public abstract int insertImpl(int column, int line, String text);
 	public abstract String removeImpl(int column, int line, int length);
+
+	// This should be handled specially for each data structure. parsing stuff for example
+	public abstract void load(BufferedReader reader) throws Exception;
+	// This is only for making stuff more efficient, symmetry and the rare case that you save stuff in a format that doesn't match the display format (java decompiler for example)
+	public abstract void save(BufferedWriter writer) throws Exception;
 
 	protected List<OperationData> history = new ArrayList<OperationData>();
 	// Whatever historyPointer points to has already been applied, anything before has also been applied and anything after hasn't
