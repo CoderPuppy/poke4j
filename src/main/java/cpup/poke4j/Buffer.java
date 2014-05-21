@@ -10,13 +10,16 @@ import cpup.poke4j.operations.RemoveOperation;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public abstract class Buffer {
 	protected final Poke poke;
 
 	public Buffer(Poke _poke) {
 		poke = _poke;
+		cursors.add(new Cursor(poke, this, 0, 0));
 	}
 
 	// Get the real line to operate on (so if the line doesn't exist it goes to the last one that does)
@@ -50,6 +53,8 @@ public abstract class Buffer {
 
 		return column;
 	}
+
+	protected final Set<Cursor> cursors = new HashSet<Cursor>();
 
 	// Wrappers for InsertOperation and RemoveOperation for ease of use
 	public Buffer insert(int column, int line, String text) {
@@ -154,9 +159,13 @@ public abstract class Buffer {
 	}
 
 	public abstract List<String> getLines();
+	public abstract String getLine(int line);
 
 	public String getText() {
 		return Joiner.on("\n").join(getLines());
+	}
+	public Set<Cursor> getCursors() {
+		return cursors;
 	}
 
 	public List<OperationData> getHistory() {

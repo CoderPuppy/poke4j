@@ -126,4 +126,9 @@ public class TextBuffer extends Buffer {
 	public List<String> getLines() {
 		return lines;
 	}
+
+	@Override
+	public String getLine(int line) {
+		return lines.get(line);
+	}
 }
