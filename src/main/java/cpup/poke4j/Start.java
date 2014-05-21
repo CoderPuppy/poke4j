@@ -22,6 +22,16 @@ public class Start {
 
 		new CommandRun(poke, LoadCommand.get(), Arrays.asList(new Object[] { "test.txt" })).invoke();
 
+		buffer.getCursors().add(new Cursor(
+			poke, buffer,
+			0, 0,
+			new Selection(
+				poke, buffer,
+				0, 0,
+				1, 3
+			)
+		));
+
 		new CommandRun(poke, SaveCommand.get(), Arrays.asList(new Object[] { "test.txt" })).invoke();
 
 		SwingUtilities.invokeLater(new Runnable() {
