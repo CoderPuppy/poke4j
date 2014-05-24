@@ -128,6 +128,11 @@ public class TextBuffer extends Buffer {
 	}
 
 	@Override
+	public int getLineCount() {
+		return lines.size();
+	}
+
+	@Override
 	public String getLine(int line) {
 		if(line < lines.size()) {
 			return lines.get(line);

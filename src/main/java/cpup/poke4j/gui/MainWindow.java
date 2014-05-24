@@ -22,12 +22,14 @@ public class MainWindow extends JFrame {
 
 		currentBuffer = new BufferGUI(poke, poke.getCurrentBuffer());
 		getContentPane().add(currentBuffer);
+		currentBuffer.grabFocus();
 
 		poke.switchBufferEv.listen(new EventHandler<Poke.SwitchBufferEvent>() {
 			@Override
 			public void handle(Poke.SwitchBufferEvent e) {
 			self.getContentPane().remove(self.currentBuffer);
 			self.getContentPane().add(self.currentBuffer = new BufferGUI(self.poke, e.getNewBuffer()));
+			self.currentBuffer.grabFocus();
 			}
 		});
 	}

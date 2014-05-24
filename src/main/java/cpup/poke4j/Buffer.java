@@ -24,14 +24,14 @@ public abstract class Buffer {
 
 	// Get the real line to operate on (so if the line doesn't exist it goes to the last one that does)
 	public int findLine(int line) {
-		final List<String> lines = getLines();
+		final int lineSize = getLineCount();
 
-		if(line > lines.size() - 1) {
-			line = lines.size() - 1;
+		if(line > lineSize - 1) {
+			line = lineSize - 1;
 		}
 
 		if(line < 0) {
-			line = Math.max(lines.size() + line, 0);
+			line = Math.max(lineSize + line, 0);
 		}
 
 		return line;
@@ -160,6 +160,7 @@ public abstract class Buffer {
 
 	public abstract List<String> getLines();
 	public abstract String getLine(int line);
+	public abstract int getLineCount();
 
 	public String getText() {
 		return Joiner.on("\n").join(getLines());

@@ -45,6 +45,11 @@ public class Selection extends Buffer {
 	}
 
 	@Override
+	public int getLineCount() {
+		return (endLine - beginLine) + 1;
+	}
+
+	@Override
 	public List<String> getLines() {
 		if(beginLine != endLine) {
 			final List<String> lines = new ArrayList<String>();
