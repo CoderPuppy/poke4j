@@ -118,7 +118,6 @@ public class BufferGUI extends JComponent implements KeyListener, MouseListener,
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent mouseWheelEvent) {
-		System.out.println(mouseWheelEvent.getWheelRotation());
 		scroll += mouseWheelEvent.getWheelRotation() * 20;
 		if(scroll < 0) {
 			scroll = 0;
