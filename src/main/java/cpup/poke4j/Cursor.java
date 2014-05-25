@@ -1,5 +1,8 @@
 package cpup.poke4j;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class Cursor {
 	protected final Poke poke;
 	protected final Buffer buffer;
@@ -19,35 +22,73 @@ public class Cursor {
 		this(_poke, _buffer, _column, _line, null);
 	}
 
-	protected void moveImpl(int dir) {
-		if(dir == 1 && column == buffer.getLine(line).length()) {
-			if(line < buffer.getLineCount() - 1) {
-				line += 1;
-				column = 0;
+	public void move(int dist) {
+		final int amt = Math.abs(dist);
+		if(amt == 0) return;
+		final int dir = dist / amt;
+		for(int i = 0; i < amt; i++) {
+			if(dir == 1 && column == buffer.getLine(line).length()) {
+				if(line < buffer.getLineCount() - 1) {
+					line += 1;
+					column = 0;
+				}
+			} else if(dir == -1 && column == 0) {
+				if(line > 0) {
+					line -= 1;
+					column = buffer.getLine(line).length();
+				}
+			} else {
+				column += dir;
 			}
-		} else if(dir == -1 && column == 0) {
-			if(line > 0) {
-				line -= 1;
-				column = buffer.getLine(line).length();
-			}
-		} else {
-			column += dir;
 		}
 	}
 
-	public void move(int dist) {
-		final int amt = Math.abs(dist);
-		final int dir = dist / amt;
-		for(int i = 0; i < amt; i++) {
-			moveImpl(dir);
-		}
-	}
+	protected final Pattern leftWhitespaceRE = Pattern.compile("\\s+$");
+	protected final Pattern leftTextRE = Pattern.compile("[a-zA-Z]+$");
+
+	protected final Pattern rightWhitespaceRE = Pattern.compile("^\\s+");
+	protected final Pattern rightTextRE = Pattern.compile("^[a-zA-Z]+");
 
 	public void moveWord(int dist) {
 		final int amt = Math.abs(dist);
 		final int dir = dist / amt;
 		for(int i = 0; i < amt; i++) {
-			// TODO: implement
+			int lamt = 0;
+			final String sline = buffer.getLine(line);
+			if(dir == -1) {
+				if(column == 0) {
+					lamt = 1;
+				} else {
+					String stuff = sline.substring(0, column);
+					final Matcher whitespaceMatch = leftWhitespaceRE.matcher(stuff);
+					if(whitespaceMatch.find()) {
+						stuff = stuff.substring(0, whitespaceMatch.end() - whitespaceMatch.start());
+						lamt = whitespaceMatch.end() - whitespaceMatch.start();
+					}
+					final Matcher textMatch = leftTextRE.matcher(stuff);
+					if(textMatch.find()) {
+						stuff = stuff.substring(0, textMatch.end() - textMatch.start());
+						lamt += textMatch.end() - textMatch.start();
+					}
+				}
+			} else if(dir == 1) {
+				if(column == sline.length()) {
+					lamt = 1;
+				} else {
+					String stuff = sline.substring(column);
+					final Matcher whitespaceMatch = rightWhitespaceRE.matcher(stuff);
+					if(whitespaceMatch.find()) {
+						stuff = stuff.substring(0, whitespaceMatch.end());
+						lamt = whitespaceMatch.end();
+					}
+					final Matcher textMatch = rightTextRE.matcher(stuff);
+					if(textMatch.find()) {
+						stuff = stuff.substring(0, textMatch.end());
+						lamt += textMatch.end();
+					}
+				}
+			}
+			move(lamt * dir);
 		}
 	}
 
