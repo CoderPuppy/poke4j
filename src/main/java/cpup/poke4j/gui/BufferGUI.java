@@ -4,12 +4,15 @@ import cpup.poke4j.Buffer;
 import cpup.poke4j.Cursor;
 import cpup.poke4j.Poke;
 import cpup.poke4j.Selection;
+import cpup.poke4j.plugin.CommandRun;
+import cpup.poke4j.plugin.js.JSArray;
+import cpup.poke4j.plugin.movement.MoveLRCommand;
+import cpup.poke4j.plugin.movement.MoveUDCommand;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
-import java.util.Set;
 
 public class BufferGUI extends JComponent implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 	protected final Poke poke;
@@ -87,12 +90,9 @@ public class BufferGUI extends JComponent implements KeyListener, MouseListener,
 			}
 
 			g.setColor(Color.white);
-			g.drawRect(
-				getTextX(cursor.getColumn()),
-				getTextY(cursor.getLine()),
-				1,
-				metrics.getHeight()
-			);
+			final int x = getTextX(cursor.getColumn());
+			final int y = getTextY(cursor.getLine());
+			g.drawLine(x, y, x, y + metrics.getHeight());
 		}
 
 		g.setColor(Color.white);
@@ -103,10 +103,12 @@ public class BufferGUI extends JComponent implements KeyListener, MouseListener,
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		final Set<Cursor> cursors = buffer.getCursors();
+		final List<Cursor> cursors = buffer.getCursors();
 		final int line = buffer.findLine(getLine(e.getY()));
 		final int column = buffer.findColumn(getColumn(e.getX()), line);
-		cursors.clear();
+		if(!e.isAltDown()) {
+			cursors.clear();
+		}
 		cursors.add(new Cursor(buffer.getPoke(), buffer, column, line));
 		repaint();
 	}
@@ -118,6 +120,7 @@ public class BufferGUI extends JComponent implements KeyListener, MouseListener,
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent mouseWheelEvent) {
+		// TODO: move scroll to Buffer?
 		scroll += mouseWheelEvent.getWheelRotation() * 20;
 		if(scroll < 0) {
 			scroll = 0;
@@ -132,7 +135,6 @@ public class BufferGUI extends JComponent implements KeyListener, MouseListener,
 	@Override
 	public void keyPressed(KeyEvent e) {
 		// TODO: up and down
-		final Set<Cursor> cursors = buffer.getCursors();
 		final boolean ctrl = e.isControlDown();
 		int dir = 0;
 		if(e.getKeyCode() == KeyEvent.VK_LEFT) {
@@ -141,40 +143,26 @@ public class BufferGUI extends JComponent implements KeyListener, MouseListener,
 			dir = 1;
 		}
 		if(dir != 0) {
-			for(Cursor cursor : cursors) {
-				cursor.setSelection(null);
-				if(ctrl) {
-					cursor.moveWord(dir);
-				} else {
-					cursor.move(dir);
-				}
-			}
+			new CommandRun(poke, buffer, MoveLRCommand.get(), JSArray.of(dir, ctrl)).invoke();
 		}
 		if(e.getKeyCode() == KeyEvent.VK_UP) {
-			for(Cursor cursor : cursors) {
-				final int line = cursor.getLine();
-				final int column = cursor.getColumn();
-				if(line > 0) {
-					cursor.setSelection(null);
-					final int newLine = line - 1;
-					cursor.setLine(newLine);
-					cursor.setColumn(buffer.findColumn(column, newLine));
-				}
-			}
+			new CommandRun(poke, buffer, MoveUDCommand.get(), JSArray.of(-1)).invoke();
 		}
 		if(e.getKeyCode() == KeyEvent.VK_DOWN) {
-			for(Cursor cursor : cursors) {
-				final int line = cursor.getLine();
-				final int column = cursor.getColumn();
-				if(line < buffer.getLineCount() - 1) {
-					cursor.setSelection(null);
-					final int newLine = line + 1;
-					cursor.setLine(newLine);
-					cursor.setColumn(buffer.findColumn(column, newLine));
-				}
-			}
+			new CommandRun(poke, buffer, MoveUDCommand.get(), JSArray.of(1)).invoke();
 		}
 		repaint();
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+		for(Cursor cursor : buffer.getCursors()) {
+			cursor.setSelection(null);
+			buffer.insert(cursor.getColumn(), cursor.getLine(), Character.toString(e.getKeyChar()));
+			if(!e.isControlDown()) {
+				cursor.move(1);
+			}
+		}
 	}
 
 	@Override
@@ -191,9 +179,6 @@ public class BufferGUI extends JComponent implements KeyListener, MouseListener,
 
 	@Override
 	public void mouseMoved(MouseEvent e) {}
-
-	@Override
-	public void keyTyped(KeyEvent e) {}
 
 	@Override
 	public void keyReleased(KeyEvent e) {}

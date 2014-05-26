@@ -16,16 +16,40 @@ public class Selection extends Buffer {
 
 	public Selection(Poke _poke, Buffer _buffer, int _beginColumn, int _beginLine, int _endColumn, int _endLine) {
 		super(_poke);
+
+		if(_beginLine > _endLine) {
+			int tmp = _endLine;
+			_endLine = _beginLine;
+			_beginLine = _endLine;
+		} else if(_beginLine == _endLine && _beginColumn > _endColumn) {
+			int tmp = _endColumn;
+			_endColumn = _beginColumn;
+			_beginColumn = _endColumn;
+		}
+
 		buffer = _buffer;
 		beginColumn = _beginColumn;
 		beginLine = _beginLine;
 		endColumn = _endColumn;
 		endLine = _endLine;
-		if(endLine < beginLine) {
-			throw new IndexOutOfBoundsException("endLine must be after beginLine");
+
+		if(beginLine < 0 || beginLine >= buffer.getLineCount()) {
+			throw new IndexOutOfBoundsException("beginLine must be a valid line");
 		}
-		if(endLine == beginLine && endColumn < beginColumn) {
-			throw new IndexOutOfBoundsException("endColumn must be after beginColumn");
+
+		if(endLine < 0 || endLine >= buffer.getLineCount()) {
+			throw new IndexOutOfBoundsException("endLine must be a valid line");
+		}
+
+		final String lineA = buffer.getLine(beginLine);
+		final String lineB = buffer.getLine(endLine);
+
+		if(beginColumn < 0 || beginColumn >= lineA.length()) {
+			throw new IndexOutOfBoundsException("beginColumn must be a valid column");
+		}
+
+		if(endColumn < 0 || endColumn >= lineB.length()) {
+			throw new IndexOutOfBoundsException("endColumn must be a valid column");
 		}
 	}
 

@@ -54,7 +54,7 @@ public abstract class Buffer {
 		return column;
 	}
 
-	protected final Set<Cursor> cursors = new HashSet<Cursor>();
+	protected final List<Cursor> cursors = new ArrayList<Cursor>();
 
 	// Wrappers for InsertOperation and RemoveOperation for ease of use
 	public Buffer insert(int column, int line, String text) {
@@ -165,7 +165,7 @@ public abstract class Buffer {
 	public String getText() {
 		return Joiner.on("\n").join(getLines());
 	}
-	public Set<Cursor> getCursors() {
+	public List<Cursor> getCursors() {
 		return cursors;
 	}
 

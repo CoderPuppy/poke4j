@@ -4,6 +4,7 @@ import cpup.poke4j.Buffer;
 import cpup.poke4j.LogMessage;
 import cpup.poke4j.Poke;
 import cpup.poke4j.events.EventRegister;
+import cpup.poke4j.plugin.js.JSArray;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,11 +13,11 @@ public class CommandRun {
 	protected final Poke poke;
 	protected final Buffer buffer;
 	protected final ICommand command;
-	protected final List<Object> args;
+	protected final JSArray args;
 	protected final List<LogMessage> log = new ArrayList<LogMessage>(50);
 	protected Status status;
 
-	public CommandRun(Poke _poke, Buffer _buffer, ICommand _command, List<Object> _args) {
+	public CommandRun(Poke _poke, Buffer _buffer, ICommand _command, JSArray _args) {
 		poke = _poke;
 		buffer = _buffer;
 		command = _command;
@@ -24,7 +25,7 @@ public class CommandRun {
 		status = Status.PreStart.get();
 	}
 
-	public CommandRun(Poke _poke, ICommand _command, List<Object> _args) {
+	public CommandRun(Poke _poke, ICommand _command, JSArray _args) {
 		this(_poke, _poke.getCurrentBuffer(), _command, _args);
 	}
 
@@ -63,6 +64,7 @@ public class CommandRun {
 	}
 
 	public EventRegister<DoneEvent> doneEv = new EventRegister<DoneEvent>();
+
 	public static abstract class DoneEvent {
 		protected final CommandRun run;
 
@@ -203,7 +205,10 @@ public class CommandRun {
 		return command;
 	}
 
-	public List<Object> getArgs() {
+	public JSArray getArgs() {
+		return args;
+	}
+	public JSArray args() {
 		return args;
 	}
 

@@ -8,6 +8,14 @@ import java.io.File;
 import java.io.FileWriter;
 
 public class SaveCommand implements ICommand {
+	@Override
+	public void invoke(CommandRun run) throws Exception {
+		String path = run.getArgs().get(0, String.class);
+		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(path)));
+		run.getBuffer().save(writer);
+		writer.close();
+	}
+
 	private static SaveCommand instance;
 
 	public static SaveCommand get() {
@@ -15,13 +23,5 @@ public class SaveCommand implements ICommand {
 			instance = new SaveCommand();
 		}
 		return instance;
-	}
-
-	@Override
-	public void invoke(CommandRun run) throws Exception {
-		String path = (String) run.getArgs().get(0);
-		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(path)));
-		run.getBuffer().save(writer);
-		writer.close();
 	}
 }
