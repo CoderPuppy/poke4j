@@ -1,10 +1,14 @@
 package cpup.poke4j.operations;
 
 import cpup.poke4j.Buffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Operation wrapper for buffer.removeImpl
 // Allows for undoing and notifying (through a generic event)
 public class RemoveOperation implements IOperation<RemoveOperation.Data> {
+	public static final Logger logger = LoggerFactory.getLogger(RemoveOperation.class);
+
 	protected final int column;
 	protected final int line;
 	protected final int length;
@@ -21,11 +25,8 @@ public class RemoveOperation implements IOperation<RemoveOperation.Data> {
 		final int realColumn = buffer.findColumn(column, line);
 
 		String removedText = buffer.removeImpl(realColumn, realLine, length);
-//		System.out.println("removedText: [" + removedText + "], realColumn = " + realColumn +
-//		                   ", realLine = " + realLine +
-//		                   ", line = " + line +
-//		                   ", column = " + column +
-//		                   ", length = " + length);
+		logger.debug("removedText: [{}], realColumn = {}, realLine = {}, line = {}, column = {}, length = {}",
+		              removedText,       realColumn,      realLine,      line,      column,      length);
 		return new Data(buffer, this, realColumn, realLine, removedText);
 	}
 

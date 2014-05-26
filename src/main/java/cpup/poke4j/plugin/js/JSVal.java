@@ -1,5 +1,7 @@
 package cpup.poke4j.plugin.js;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sun.org.mozilla.javascript.NativeArray;
 import sun.org.mozilla.javascript.NativeObject;
 
@@ -8,6 +10,8 @@ import java.util.Map;
 import java.util.Objects;
 
 public abstract class JSVal {
+	public static final Logger logger = LoggerFactory.getLogger(JSVal.class);
+
 	public abstract Object get(String key);
 
 	public <T> T get(String key, Class<T> cla) {
@@ -78,7 +82,7 @@ public abstract class JSVal {
 		} else if(val instanceof Map) {
 			return new JSObj((Map<String, Object>) val);
 		} else {
-			System.err.printf("No wrapper for %s%n", val.getClass().getName());
+			logger.debug("No wrapper for {}", val.getClass().getName());
 			return val;
 		}
 	}
