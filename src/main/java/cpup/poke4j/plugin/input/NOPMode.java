@@ -4,7 +4,7 @@ public class NOPMode extends Mode {
 	@Override
 	public void handle(Input input) {}
 
-	protected static NOPMode instance;
+	private static NOPMode instance;
 
 	public static NOPMode get() {
 		if(instance == null) {

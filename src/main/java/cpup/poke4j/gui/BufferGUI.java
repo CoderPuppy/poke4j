@@ -5,6 +5,7 @@ import cpup.poke4j.Cursor;
 import cpup.poke4j.Poke;
 import cpup.poke4j.Selection;
 import cpup.poke4j.plugin.CommandRun;
+import cpup.poke4j.plugin.input.KeyInput;
 import cpup.poke4j.plugin.input.MouseInput;
 import cpup.poke4j.plugin.js.JSArray;
 import cpup.poke4j.plugin.movement.MoveLRCommand;
@@ -105,19 +106,19 @@ public class BufferGUI extends JComponent implements KeyListener, MouseListener,
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		poke.getMode().handle(new MouseInput(poke, MouseInput.Type.click, e, getColumn(e.getX()), getLine(e.getY())));
-		final List<Cursor> cursors = buffer.getCursors();
-		final int line = buffer.findLine(getLine(e.getY()));
-		final int column = buffer.findColumn(getColumn(e.getX()), line);
-		if(!e.isAltDown()) {
-			cursors.clear();
-		}
-		cursors.add(new Cursor(buffer.getPoke(), buffer, column, line));
+		repaint();
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		poke.getMode().handle(new MouseInput(poke, MouseInput.Type.press, e, getColumn(e.getX()), getLine(e.getY())));
 		repaint();
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		// TODO: select stuff
+		poke.getMode().handle(new MouseInput(poke, MouseInput.Type.drag, e, getColumn(e.getX()), getLine(e.getY())));
+		repaint();
 	}
 
 	@Override
@@ -136,38 +137,14 @@ public class BufferGUI extends JComponent implements KeyListener, MouseListener,
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		final boolean ctrl = e.isControlDown();
-		int dir = 0;
-		if(e.getKeyCode() == KeyEvent.VK_LEFT) {
-			dir = -1;
-		} else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
-			dir = 1;
-		}
-		if(dir != 0) {
-			new CommandRun(poke, buffer, MoveLRCommand.get(), JSArray.of(dir, ctrl)).invoke();
-		}
-		if(e.getKeyCode() == KeyEvent.VK_UP) {
-			new CommandRun(poke, buffer, MoveUDCommand.get(), JSArray.of(-1)).invoke();
-		}
-		if(e.getKeyCode() == KeyEvent.VK_DOWN) {
-			new CommandRun(poke, buffer, MoveUDCommand.get(), JSArray.of(1)).invoke();
-		}
+		poke.getMode().handle(new KeyInput(poke, KeyInput.Type.press, e));
 		repaint();
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		for(Cursor cursor : buffer.getCursors()) {
-			cursor.setSelection(null);
-			buffer.insert(cursor.getColumn(), cursor.getLine(), Character.toString(e.getKeyChar()));
-			if(!e.isControlDown()) {
-				cursor.move(1);
-			}
-		}
+		poke.getMode().handle(new KeyInput(poke, KeyInput.Type.type, e));
 	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {}

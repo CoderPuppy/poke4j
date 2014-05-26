@@ -22,9 +22,7 @@ public class SelectCommand implements ICommand {
 		));
 	}
 
-	protected SelectCommand() {}
-
-	protected static SelectCommand instance;
+	private static SelectCommand instance;
 
 	public static SelectCommand get() {
 		if(instance == null) {

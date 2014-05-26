@@ -2,21 +2,17 @@ package cpup.poke4j.plugin.input;
 
 import cpup.poke4j.Poke;
 
-import java.awt.event.MouseEvent;
+import java.awt.event.KeyEvent;
 
-public class MouseInput implements Input {
+public class KeyInput implements Input {
 	protected final Poke poke;
 	protected final Type type;
-	protected final MouseEvent e;
-	protected final int column;
-	protected final int line;
+	protected final KeyEvent e;
 
-	public MouseInput(Poke _poke, Type _type, MouseEvent _e, int _column, int _line) {
+	public KeyInput(Poke _poke, Type _type, KeyEvent _e) {
 		poke = _poke;
 		type = _type;
 		e = _e;
-		column = _column;
-		line = _line;
 	}
 
 	// Getters and Setters
@@ -28,24 +24,16 @@ public class MouseInput implements Input {
 		return type;
 	}
 
-	public MouseEvent getEvent() {
+	public KeyEvent getEvent() {
 		return e;
 	}
 
-	public int getColumn() {
-		return column;
+	public int getKeyCode() {
+		return e.getKeyCode();
 	}
 
-	public int getLine() {
-		return line;
-	}
-
-	public int getX() {
-		return e.getX();
-	}
-
-	public int getY() {
-		return e.getY();
+	public char getKeyChar() {
+		return e.getKeyChar();
 	}
 
 	public boolean isShiftDown() {
@@ -77,8 +65,7 @@ public class MouseInput implements Input {
 	}
 
 	public static enum Type {
-		click,
-		drag,
-		press
+		press,
+		type
 	}
 }
