@@ -134,7 +134,6 @@ public class BufferGUI extends JComponent implements KeyListener, MouseListener,
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		// TODO: up and down
 		final boolean ctrl = e.isControlDown();
 		int dir = 0;
 		if(e.getKeyCode() == KeyEvent.VK_LEFT) {
