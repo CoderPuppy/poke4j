@@ -4,6 +4,8 @@ import cpup.poke4j.gui.MainWindow;
 import cpup.poke4j.plugin.CommandRun;
 import cpup.poke4j.plugin.files.LoadCommand;
 import cpup.poke4j.plugin.files.SaveCommand;
+import cpup.poke4j.plugin.input.Input;
+import cpup.poke4j.plugin.input.Mode;
 import cpup.poke4j.plugin.js.JSArray;
 import cpup.poke4j.plugin.movement.SelectCommand;
 

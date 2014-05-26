@@ -5,6 +5,7 @@ import cpup.poke4j.Cursor;
 import cpup.poke4j.Poke;
 import cpup.poke4j.Selection;
 import cpup.poke4j.plugin.CommandRun;
+import cpup.poke4j.plugin.input.MouseInput;
 import cpup.poke4j.plugin.js.JSArray;
 import cpup.poke4j.plugin.movement.MoveLRCommand;
 import cpup.poke4j.plugin.movement.MoveUDCommand;
@@ -103,6 +104,7 @@ public class BufferGUI extends JComponent implements KeyListener, MouseListener,
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		poke.getMode().handle(new MouseInput(poke, MouseInput.Type.click, e, getColumn(e.getX()), getLine(e.getY())));
 		final List<Cursor> cursors = buffer.getCursors();
 		final int line = buffer.findLine(getLine(e.getY()));
 		final int column = buffer.findColumn(getColumn(e.getX()), line);
@@ -182,27 +184,27 @@ public class BufferGUI extends JComponent implements KeyListener, MouseListener,
 	@Override
 	public void keyReleased(KeyEvent e) {}
 
-	protected int getTextX(int column) {
+	public int getTextX(int column) {
 		return column * getCharWidth() + 2;
 	}
 
-	protected int getTextY(int line) {
+	public int getTextY(int line) {
 		return line * getLineHeight() - scroll;
 	}
 
-	protected int getLine(int y) {
+	public int getLine(int y) {
 		return (y + scroll) / getLineHeight();
 	}
 
-	protected int getColumn(int x) {
+	public int getColumn(int x) {
 		return (x - 2) / getCharWidth();
 	}
 
-	protected int getCharWidth() {
+	public int getCharWidth() {
 		return metrics.charWidth('A');
 	}
 
-	protected int getLineHeight() {
+	public int getLineHeight() {
 		return metrics.getHeight();
 	}
 

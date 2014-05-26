@@ -7,7 +7,7 @@ import javax.swing.*;
 
 public class MainWindow extends JFrame {
 	protected final Poke poke;
-	protected BufferGUI currentBuffer;
+	protected BufferGUI currentBufferGUI;
 
 	public MainWindow(Poke _poke) {
 		final MainWindow self = this;
@@ -20,16 +20,16 @@ public class MainWindow extends JFrame {
 		setResizable(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-		currentBuffer = new BufferGUI(poke, poke.getCurrentBuffer());
-		getContentPane().add(currentBuffer);
-		currentBuffer.grabFocus();
+		currentBufferGUI = new BufferGUI(poke, poke.getCurrentBuffer());
+		getContentPane().add(currentBufferGUI);
+		currentBufferGUI.grabFocus();
 
 		poke.switchBufferEv.listen(new EventHandler<Poke.SwitchBufferEvent>() {
 			@Override
 			public void handle(Poke.SwitchBufferEvent e) {
-			self.getContentPane().remove(self.currentBuffer);
-			self.getContentPane().add(self.currentBuffer = new BufferGUI(self.poke, e.getNewBuffer()));
-			self.currentBuffer.grabFocus();
+			self.getContentPane().remove(self.currentBufferGUI);
+			self.getContentPane().add(self.currentBufferGUI = new BufferGUI(self.poke, e.getNewBuffer()));
+			self.currentBufferGUI.grabFocus();
 			}
 		});
 	}
@@ -37,5 +37,9 @@ public class MainWindow extends JFrame {
 	// Getters and Setters
 	public Poke getPoke() {
 		return poke;
+	}
+
+	public BufferGUI getCurrentBufferGUI() {
+		return currentBufferGUI;
 	}
 }
