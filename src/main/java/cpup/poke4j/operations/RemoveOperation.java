@@ -1,6 +1,7 @@
 package cpup.poke4j.operations;
 
 import cpup.poke4j.Buffer;
+import cpup.poke4j.BufferPos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,10 +22,17 @@ public class RemoveOperation implements IOperation<RemoveOperation.Data> {
 
 	@Override
 	public Data apply(Buffer buffer) {
-		final int realLine = buffer.findLine(line);
-		final int realColumn = buffer.findColumn(column, line);
+		int realLine = buffer.findLine(line);
+		int realColumn = buffer.findColumn(column, realLine);
+		int realLength = length;
+		if(length < 0) {
+			final BufferPos pos = buffer.offset(new BufferPos(realColumn, realLine), length);
+			realLength = Math.abs(realLength);
+			realColumn = pos.getColumn();
+			realLine = pos.getLine();
+		}
 
-		String removedText = buffer.removeImpl(realColumn, realLine, length);
+		String removedText = buffer.removeImpl(realColumn, realLine, realLength);
 		logger.debug("removedText: [{}], realColumn = {}, realLine = {}, line = {}, column = {}, length = {}",
 		              removedText,       realColumn,      realLine,      line,      column,      length);
 		return new Data(buffer, this, realColumn, realLine, removedText);
