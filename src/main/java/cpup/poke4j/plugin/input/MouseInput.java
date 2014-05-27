@@ -40,14 +40,6 @@ public class MouseInput implements Input {
 		return line;
 	}
 
-	public int getX() {
-		return e.getX();
-	}
-
-	public int getY() {
-		return e.getY();
-	}
-
 	public boolean isShiftDown() {
 		return e.isShiftDown();
 	}
