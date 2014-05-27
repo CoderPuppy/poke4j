@@ -6,12 +6,14 @@ import cpup.poke4j.Poke;
 import cpup.poke4j.plugin.CommandRun;
 import cpup.poke4j.plugin.editing.InsertCommand;
 import cpup.poke4j.plugin.editing.RemoveCommand;
+import cpup.poke4j.plugin.files.LoadCommand;
 import cpup.poke4j.plugin.js.JSArray;
 import cpup.poke4j.plugin.movement.MoveLRCommand;
 import cpup.poke4j.plugin.movement.MoveUDCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.util.List;
 
@@ -41,6 +43,14 @@ public class BasicMode extends Mode {
 				new CommandRun(poke, buffer, RemoveCommand.get(), JSArray.of(-1)).invoke();
 			} else if(code == KeyEvent.VK_DELETE) {
 				new CommandRun(poke, buffer, RemoveCommand.get(), JSArray.of(1)).invoke();
+			} else if(code == KeyEvent.VK_S && input.isControlDown()) {
+				System.err.println("saving");
+			} else if(code == KeyEvent.VK_O && input.isControlDown()) {
+				JFileChooser chooser = new JFileChooser();
+				if(chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+					System.err.printf("opening %s%n", chooser.getSelectedFile().getAbsolutePath());
+					new CommandRun(poke, buffer, LoadCommand.get(), JSArray.of(chooser.getSelectedFile().getAbsolutePath())).invoke();
+				}
 			} else if(keyType == KeyInput.Type.type && !ctrl && keyInput.getKeyCode() != 0) {
 				new CommandRun(poke, buffer, InsertCommand.get(), JSArray.of(Character.toString(keyInput.getKeyChar()))).invoke();
 			}
