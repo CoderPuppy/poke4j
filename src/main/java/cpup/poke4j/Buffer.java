@@ -54,6 +54,50 @@ public abstract class Buffer {
 		return column;
 	}
 
+	public BufferPos offset(BufferPos pos, int offset) {
+		if(offset == 0) {
+			return pos;
+		}
+
+		int dist = Math.abs(offset);
+		final int dir = offset / dist;
+		int column = pos.getColumn();
+		int line = pos.getLine();
+		final int lineCount = getLineCount();
+
+		while(dist > 0) {
+			if(dir == 1) {
+				if(column == getLine(line).length()) {
+					if(line < lineCount - 1) {
+						line += 1;
+						column = 0;
+						dist -= 1;
+					} else {
+						break;
+					}
+				} else {
+					column += 1;
+					dist -= 1;
+				}
+			} else if(dir == -1) {
+				if(column > 0) {
+					column -= 1;
+					dist -= 1;
+				} else {
+					if(line > 0) {
+						line -= 1;
+						column = getLine(line).length();
+						dist -= 1;
+					} else {
+						break;
+					}
+				}
+			}
+		}
+
+		return new BufferPos(column, line);
+	}
+
 	protected final List<Cursor> cursors = new ArrayList<Cursor>();
 
 	// Wrappers for InsertOperation and RemoveOperation for ease of use
