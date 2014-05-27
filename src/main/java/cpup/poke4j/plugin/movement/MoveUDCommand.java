@@ -8,6 +8,9 @@ public class MoveUDCommand implements ICommand {
 	@Override
 	public void invoke(CommandRun run) throws Exception {
 		final int dist = run.args().get(0, Integer.class);
+		if(dist == 0) {
+			return;
+		}
 		final int amt = Math.abs(dist);
 		final boolean up = (dist / amt) == -1;
 		for(Cursor cursor : run.getBuffer().getCursors()) {
