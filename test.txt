@@ -1,4 +1,2 @@
-Hello
-foo
-baz
-World
+Hello World!
+foo bar baz

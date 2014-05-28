@@ -6,16 +6,16 @@ import cpup.poke4j.operations.IOperation;
 import cpup.poke4j.operations.InsertOperation;
 import cpup.poke4j.operations.OperationData;
 import cpup.poke4j.operations.RemoveOperation;
+import cpup.poke4j.plugin.js.JSObj;
+import cpup.poke4j.plugin.js.JSVal;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public abstract class Buffer {
 	protected final Poke poke;
+	protected final JSVal hints = new JSObj(new HashMap<String, Object>());
 
 	public Buffer(Poke _poke) {
 		poke = _poke;
@@ -215,6 +215,10 @@ public abstract class Buffer {
 
 	public List<OperationData> getHistory() {
 		return history;
+	}
+
+	public JSVal getHints() {
+		return hints;
 	}
 
 	public int getHistoryPointer() {

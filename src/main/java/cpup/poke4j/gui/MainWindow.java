@@ -2,12 +2,14 @@ package cpup.poke4j.gui;
 
 import cpup.poke4j.events.EventHandler;
 import cpup.poke4j.Poke;
+import cpup.poke4j.ui.PokeUI;
+import cpup.poke4j.ui.UI;
 
 import javax.swing.*;
 
-public class MainWindow extends JFrame {
+public class MainWindow extends JFrame implements PokeUI {
 	protected final Poke poke;
-	protected BufferGUI currentBufferGUI;
+	protected GUI mainUI;
 
 	public MainWindow(Poke _poke) {
 		final MainWindow self = this;
@@ -20,18 +22,9 @@ public class MainWindow extends JFrame {
 		setResizable(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-		currentBufferGUI = new BufferGUI(poke, poke.getCurrentBuffer());
-		getContentPane().add(currentBufferGUI);
-		currentBufferGUI.grabFocus();
-
-		poke.switchBufferEv.listen(new EventHandler<Poke.SwitchBufferEvent>() {
-			@Override
-			public void handle(Poke.SwitchBufferEvent e) {
-			self.getContentPane().remove(self.currentBufferGUI);
-			self.getContentPane().add(self.currentBufferGUI = new BufferGUI(self.poke, e.getNewBuffer()));
-			self.currentBufferGUI.grabFocus();
-			}
-		});
+		mainUI = new BufferGUI(this, null, poke.getBuffers().get(0));
+		getContentPane().add(mainUI);
+		mainUI.grabFocus();
 	}
 
 	// Getters and Setters
@@ -39,7 +32,14 @@ public class MainWindow extends JFrame {
 		return poke;
 	}
 
-	public BufferGUI getCurrentBufferGUI() {
-		return currentBufferGUI;
+	public UI getMainUI() {
+		return mainUI;
+	}
+
+	public void setMainUI(GUI _mainUI) {
+		getContentPane().remove(mainUI);
+		this.mainUI = _mainUI;
+		getContentPane().add(_mainUI);
+		_mainUI.grabFocus();
 	}
 }

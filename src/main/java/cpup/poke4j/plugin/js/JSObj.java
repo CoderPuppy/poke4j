@@ -10,6 +10,11 @@ public class JSObj extends JSVal {
 	}
 
 	@Override
+	public void put(String key, Object val) {
+		jsData.put(key, val);
+	}
+
+	@Override
 	public Object get(String key) {
 		return JSVal.wrap(jsData.get(key));
 	}

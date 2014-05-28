@@ -12,10 +12,12 @@ public class RemoveCommand implements ICommand {
 		final Buffer buffer = run.getBuffer();
 		for(Cursor cursor : buffer.getCursors()) {
 			cursor.setSelection(null);
-			buffer.remove(cursor.getColumn(), cursor.getLine(), length);
+			final int column = cursor.getColumn();
+			final int line = cursor.getLine();
 			if(length < 0) {
 				cursor.move(length);
 			}
+			buffer.remove(column, line, length);
 		}
 	}
 

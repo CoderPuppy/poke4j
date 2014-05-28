@@ -18,7 +18,7 @@ public class Start {
 
 		poke.setMode(BasicMode.get());
 
-		final Buffer buffer = poke.getCurrentBuffer();
+		final Buffer buffer = poke.getBuffers().get(0);
 
 //		buffer.insert(-1, -1, "Hello");
 //		buffer.insert(-1, -1, "\nWorld");

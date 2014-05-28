@@ -16,7 +16,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 
-public class BufferGUI extends JComponent implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
+public class BufferGUI extends GUI implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 	protected final Poke poke;
 	protected final Buffer buffer;
 	protected final Font font = new Font(Font.MONOSPACED, Font.PLAIN, 11);
@@ -25,12 +25,12 @@ public class BufferGUI extends JComponent implements KeyListener, MouseListener,
 	protected final int charWidth = metrics.getWidths()[0];
 	protected int scroll = 0;
 
-	public BufferGUI(Poke _poke, Buffer _buffer) {
-		super();
+	public BufferGUI(MainWindow _mainWindow, GUI _parent, Buffer _buffer) {
+		super(_mainWindow, _parent);
 
 		final BufferGUI self = this;
 
-		poke = _poke;
+		poke = mainWindow.getPoke();
 		buffer = _buffer;
 
 		addKeyListener(this);
@@ -105,19 +105,19 @@ public class BufferGUI extends JComponent implements KeyListener, MouseListener,
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		poke.getMode().handle(new MouseInput(poke, MouseInput.Type.click, e, getColumn(e.getX()), getLine(e.getY())));
+		poke.getMode().handle(new MouseInput(poke, buffer, MouseInput.Type.click, e, getColumn(e.getX()), getLine(e.getY())));
 		repaint();
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		poke.getMode().handle(new MouseInput(poke, MouseInput.Type.press, e, getColumn(e.getX()), getLine(e.getY())));
+		poke.getMode().handle(new MouseInput(poke, buffer, MouseInput.Type.press, e, getColumn(e.getX()), getLine(e.getY())));
 		repaint();
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		poke.getMode().handle(new MouseInput(poke, MouseInput.Type.drag, e, getColumn(e.getX()), getLine(e.getY())));
+		poke.getMode().handle(new MouseInput(poke, buffer, MouseInput.Type.drag, e, getColumn(e.getX()), getLine(e.getY())));
 		repaint();
 	}
 
@@ -137,13 +137,13 @@ public class BufferGUI extends JComponent implements KeyListener, MouseListener,
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		poke.getMode().handle(new KeyInput(poke, KeyInput.Type.press, e));
+		poke.getMode().handle(new KeyInput(poke, buffer, KeyInput.Type.press, e));
 		repaint();
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		poke.getMode().handle(new KeyInput(poke, KeyInput.Type.type, e));
+		poke.getMode().handle(new KeyInput(poke, buffer, KeyInput.Type.type, e));
 	}
 
 	@Override

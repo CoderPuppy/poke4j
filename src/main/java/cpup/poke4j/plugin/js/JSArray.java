@@ -4,10 +4,15 @@ import java.util.Arrays;
 import java.util.List;
 
 public class JSArray extends JSVal {
-	protected final List jsData;
+	protected final List<Object> jsData;
 
-	public JSArray(List _jsData) {
+	public JSArray(List<Object> _jsData) {
 		jsData = _jsData;
+	}
+
+	@Override
+	public void put(String key, Object val) {
+		jsData.set(Integer.parseInt(key), val);
 	}
 
 	@Override
@@ -20,7 +25,7 @@ public class JSArray extends JSVal {
 	}
 
 	// Getters and Setters
-	public List getJsData() {
+	public List<Object> getJsData() {
 		return jsData;
 	}
 }

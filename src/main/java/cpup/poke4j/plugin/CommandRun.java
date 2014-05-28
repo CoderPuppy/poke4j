@@ -26,7 +26,7 @@ public class CommandRun {
 	}
 
 	public CommandRun(Poke _poke, ICommand _command, JSArray _args) {
-		this(_poke, _poke.getCurrentBuffer(), _command, _args);
+		this(_poke, _poke.getBuffers().get(0), _command, _args);
 	}
 
 	public CommandRun invoke() {

@@ -115,6 +115,9 @@ public class TextBuffer extends Buffer {
 		while((line = reader.readLine()) != null) {
 			lines.add(line);
 		}
+		if(lines.size() == 0) {
+			lines.add("");
+		}
 	}
 
 	@Override

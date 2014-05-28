@@ -1,18 +1,25 @@
 package cpup.poke4j.plugin.input;
 
+import cpup.poke4j.Buffer;
 import cpup.poke4j.Poke;
 
 import java.awt.event.KeyEvent;
 
 public class KeyInput implements Input {
 	protected final Poke poke;
+	protected final Buffer buffer;
 	protected final Type type;
 	protected final KeyEvent e;
 
-	public KeyInput(Poke _poke, Type _type, KeyEvent _e) {
+	public KeyInput(Poke _poke, Buffer _buffer, Type _type, KeyEvent _e) {
 		poke = _poke;
+		buffer = _buffer;
 		type = _type;
 		e = _e;
+	}
+
+	public Buffer getBuffer() {
+		return buffer;
 	}
 
 	// Getters and Setters
