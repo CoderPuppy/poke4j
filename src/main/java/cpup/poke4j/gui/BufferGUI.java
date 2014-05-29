@@ -1,9 +1,7 @@
 package cpup.poke4j.gui;
 
-import cpup.poke4j.Buffer;
+import cpup.poke4j.*;
 import cpup.poke4j.Cursor;
-import cpup.poke4j.Poke;
-import cpup.poke4j.Selection;
 import cpup.poke4j.plugin.CommandRun;
 import cpup.poke4j.plugin.input.KeyInput;
 import cpup.poke4j.plugin.input.MouseInput;
@@ -56,13 +54,13 @@ public class BufferGUI extends GUI implements KeyListener, MouseListener, MouseM
 			final Selection selection = cursor.getSelection();
 			if(selection != null) {
 				g.setColor(new Color(87, 87, 87));
-				final int beginLine = selection.getBeginLine();
-				final int beginColumn = selection.getBeginColumn();
-				final int endLine = selection.getEndLine();
-				final int endColumn = selection.getEndColumn();
+				final int beginLine = selection.getBegin().getLine();
+				final int beginColumn = selection.getBegin().getColumn();
+				final int endLine = selection.getEnd().getLine();
+				final int endColumn = selection.getEnd().getColumn();
 
 				final int startX = getTextX(beginColumn);
-				final int startY = getTextY(beginLine);
+				final int startY = getTextY(beginLine) + 2;
 
 				if(beginLine == endLine) {
 					g.fillRect(
@@ -78,13 +76,13 @@ public class BufferGUI extends GUI implements KeyListener, MouseListener, MouseM
 					);
 					for(int i = beginLine + 1; i < endLine; i++) {
 						g.fillRect(
-							baseX, getTextY(i),
+							baseX, getTextY(i) + 2,
 							getTextX(lines.get(i).length()) - baseX,
 							lineHeight
 						);
 					}
 					g.fillRect(
-						baseX, getTextY(endLine),
+						baseX, getTextY(endLine) + 2,
 						getTextX(endColumn) - baseX,
 						lineHeight
 					);
@@ -92,9 +90,9 @@ public class BufferGUI extends GUI implements KeyListener, MouseListener, MouseM
 			}
 
 			g.setColor(Color.white);
-			final int x = getTextX(cursor.getColumn());
-			final int y = getTextY(cursor.getLine());
-			g.drawLine(x, y, x, y + metrics.getHeight());
+			final int x = getTextX(cursor.getPos().getColumn());
+			final int y = getTextY(cursor.getPos().getLine()) + 2;
+			g.drawLine(x, y, x, y + lineHeight - 1);
 		}
 
 		g.setColor(Color.white);
@@ -105,19 +103,19 @@ public class BufferGUI extends GUI implements KeyListener, MouseListener, MouseM
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		poke.getMode().handle(new MouseInput(poke, buffer, MouseInput.Type.click, e, getColumn(e.getX()), getLine(e.getY())));
+		poke.getMode().handle(new MouseInput(poke, buffer, MouseInput.Type.click, e, new BufferPos(getColumn(e.getX()), getLine(e.getY()))));
 		repaint();
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		poke.getMode().handle(new MouseInput(poke, buffer, MouseInput.Type.press, e, getColumn(e.getX()), getLine(e.getY())));
+		poke.getMode().handle(new MouseInput(poke, buffer, MouseInput.Type.press, e, new BufferPos(getColumn(e.getX()), getLine(e.getY()))));
 		repaint();
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		poke.getMode().handle(new MouseInput(poke, buffer, MouseInput.Type.drag, e, getColumn(e.getX()), getLine(e.getY())));
+		poke.getMode().handle(new MouseInput(poke, buffer, MouseInput.Type.drag, e, new BufferPos(getColumn(e.getX()), getLine(e.getY()))));
 		repaint();
 	}
 
@@ -144,6 +142,7 @@ public class BufferGUI extends GUI implements KeyListener, MouseListener, MouseM
 	@Override
 	public void keyTyped(KeyEvent e) {
 		poke.getMode().handle(new KeyInput(poke, buffer, KeyInput.Type.type, e));
+		repaint();
 	}
 
 	@Override

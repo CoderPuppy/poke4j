@@ -9,84 +9,24 @@ import java.util.List;
 
 public class Selection extends Buffer {
 	protected final Buffer buffer;
-	protected final int beginColumn;
-	protected final int beginLine;
-	protected final int endColumn;
-	protected final int endLine;
+	protected final BufferPos begin;
+	protected final BufferPos end;
 
-	public Selection(Poke _poke, Buffer _buffer, int _beginColumn, int _beginLine, int _endColumn, int _endLine) {
+	public Selection(Poke _poke, Buffer _buffer, BufferPos _begin, BufferPos _end) {
 		super(_poke);
 
-		if(_beginLine > _endLine) {
-			int tmp = _endLine;
-			_endLine = _beginLine;
-			_beginLine = _endLine;
-		} else if(_beginLine == _endLine && _beginColumn > _endColumn) {
-			int tmp = _endColumn;
-			_endColumn = _beginColumn;
-			_beginColumn = _endColumn;
+		_begin = _begin.find(_buffer);
+		_end = _end.find(_buffer);
+
+		if(_begin.greater(_end)) {
+			BufferPos tmp = _end;
+			_end = _begin;
+			_begin = tmp;
 		}
 
 		buffer = _buffer;
-		beginColumn = _beginColumn;
-		beginLine = _beginLine;
-		endColumn = _endColumn;
-		endLine = _endLine;
-
-		if(beginLine < 0 || beginLine >= buffer.getLineCount()) {
-			throw new IndexOutOfBoundsException("beginLine must be a valid line");
-		}
-
-		if(endLine < 0 || endLine >= buffer.getLineCount()) {
-			throw new IndexOutOfBoundsException("endLine must be a valid line");
-		}
-
-		final String lineA = buffer.getLine(beginLine);
-		final String lineB = buffer.getLine(endLine);
-
-		if(beginColumn < 0 || beginColumn >= lineA.length()) {
-			throw new IndexOutOfBoundsException("beginColumn must be a valid column");
-		}
-
-		if(endColumn < 0 || endColumn >= lineB.length()) {
-			throw new IndexOutOfBoundsException("endColumn must be a valid column");
-		}
-	}
-
-	@Override
-	public String getLine(int line) {
-		if(line == 0) {
-			if(beginLine == endLine) {
-				return buffer.getLine(beginLine).substring(beginColumn, endColumn);
-			} else {
-				return buffer.getLine(beginLine).substring(beginColumn);
-			}
-		} else if(line == endLine - beginLine) {
-			return buffer.getLine(endLine).substring(0, endColumn);
-		} else {
-			return buffer.getLine(beginLine + line);
-		}
-	}
-
-	@Override
-	public int getLineCount() {
-		return (endLine - beginLine) + 1;
-	}
-
-	@Override
-	public List<String> getLines() {
-		if(beginLine != endLine) {
-			final List<String> lines = new ArrayList<String>();
-			final List<String> bufLines = buffer.getLines();
-			lines.add(bufLines.get(beginLine).substring(beginColumn));
-			lines.addAll(bufLines.subList(beginLine + 1, endLine));
-			lines.add(bufLines.get(endLine).substring(0, endColumn));
-			return lines;
-		} else {
-			final List<String> lines = new ArrayList<String>();
-			lines.add(buffer.getLine(beginLine).substring(beginColumn, endColumn));
-			return lines;
-		}
+		begin = _begin;
+		end = _end;
 	}
 
 	@Override
@@ -100,41 +40,73 @@ public class Selection extends Buffer {
 	}
 
 	@Override
-	public String removeImpl(int column, int line, int length) {
+	public String removeImpl(BufferPos pos, int length) {
 		return buffer.removeImpl(
-			beginColumn + column,
-			beginLine + line,
+			new BufferPos(
+				(pos.getLine() == 0 ? begin.getColumn() : 0) + pos.getColumn(),
+				begin.getLine() + pos.getLine()
+			),
 			length
 		);
 	}
 
 	@Override
-	public int insertImpl(int column, int line, String text) {
+	public int insertImpl(BufferPos pos, String text) {
 		return buffer.insertImpl(
-			beginColumn + column,
-			beginLine + line,
+			new BufferPos(
+				(pos.getLine() == 0 ? begin.getColumn() : 0) + pos.getColumn(),
+				begin.getLine() + pos.getLine()
+			),
 			text
 		);
 	}
 
 	// Getters and Setters
+	@Override
+	public String getLine(int line) {
+		if(line == 0) {
+			if(begin.getLine() == end.getLine()) {
+				return buffer.getLine(begin.getLine()).substring(begin.getColumn(), end.getColumn());
+			} else {
+				return buffer.getLine(begin.getLine()).substring(begin.getColumn());
+			}
+		} else if(line == end.getLine() - begin.getLine()) {
+			return buffer.getLine(end.getLine()).substring(0, end.getColumn());
+		} else {
+			return buffer.getLine(begin.getLine() + line);
+		}
+	}
+
+	@Override
+	public int getLineCount() {
+		return (end.getLine() - begin.getLine()) + 1;
+	}
+
+	@Override
+	public List<String> getLines() {
+		if(begin.getLine() != end.getLine()) {
+			final List<String> lines = new ArrayList<String>();
+			final List<String> bufLines = buffer.getLines();
+			lines.add(bufLines.get(begin.getLine()).substring(begin.getColumn()));
+			lines.addAll(bufLines.subList(begin.getLine() + 1, end.getLine()));
+			lines.add(bufLines.get(end.getLine()).substring(0, end.getColumn()));
+			return lines;
+		} else {
+			final List<String> lines = new ArrayList<String>();
+			lines.add(buffer.getLine(begin.getLine()).substring(begin.getColumn(), end.getColumn()));
+			return lines;
+		}
+	}
+
 	public Buffer getBuffer() {
 		return buffer;
 	}
 
-	public int getBeginColumn() {
-		return beginColumn;
+	public BufferPos getBegin() {
+		return begin;
 	}
 
-	public int getBeginLine() {
-		return beginLine;
-	}
-
-	public int getEndColumn() {
-		return endColumn;
-	}
-
-	public int getEndLine() {
-		return endLine;
+	public BufferPos getEnd() {
+		return end;
 	}
 }

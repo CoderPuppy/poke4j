@@ -1,6 +1,7 @@
 package cpup.poke4j.plugin.input;
 
 import cpup.poke4j.Buffer;
+import cpup.poke4j.BufferPos;
 import cpup.poke4j.Poke;
 
 import java.awt.event.MouseEvent;
@@ -10,16 +11,14 @@ public class MouseInput implements Input {
 	protected final Buffer buffer;
 	protected final Type type;
 	protected final MouseEvent e;
-	protected final int column;
-	protected final int line;
+	protected final BufferPos pos;
 
-	public MouseInput(Poke _poke, Buffer _buffer, Type _type, MouseEvent _e, int _column, int _line) {
+	public MouseInput(Poke _poke, Buffer _buffer, Type _type, MouseEvent _e, BufferPos _pos) {
 		poke = _poke;
 		buffer = _buffer;
 		type = _type;
 		e = _e;
-		column = _column;
-		line = _line;
+		pos = _pos;
 	}
 
 	// Getters and Setters
@@ -39,12 +38,8 @@ public class MouseInput implements Input {
 		return e;
 	}
 
-	public int getColumn() {
-		return column;
-	}
-
-	public int getLine() {
-		return line;
+	public BufferPos getPos() {
+		return pos;
 	}
 
 	public boolean isShiftDown() {

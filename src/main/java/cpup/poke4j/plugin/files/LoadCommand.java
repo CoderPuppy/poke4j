@@ -1,6 +1,7 @@
 package cpup.poke4j.plugin.files;
 
 import cpup.poke4j.Buffer;
+import cpup.poke4j.BufferPos;
 import cpup.poke4j.Cursor;
 import cpup.poke4j.plugin.CommandRun;
 import cpup.poke4j.plugin.ICommand;
@@ -22,7 +23,7 @@ public class LoadCommand implements ICommand {
 			buffer.load(reader);
 			reader.close();
 			buffer.getCursors().clear();
-			buffer.getCursors().add(new Cursor(run.getPoke(), buffer, 0, 0));
+			buffer.getCursors().add(new Cursor(run.getPoke(), buffer, new BufferPos(0, 0)));
 		} else {
 			throw new FileNotFoundException("No file named: " + path);
 		}

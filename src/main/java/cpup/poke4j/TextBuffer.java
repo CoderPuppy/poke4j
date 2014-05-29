@@ -27,7 +27,7 @@ public class TextBuffer extends Buffer {
 	}
 
 	@Override
-	public int insertImpl(int column, int line, String text) {
+	public int insertImpl(BufferPos pos, String text) {
 		List<String> newLines = Splitter.on(CharMatcher.anyOf("\n")).splitToList(text);
 		// The first line of text
 		String firstLine = newLines.get(0);
@@ -36,72 +36,54 @@ public class TextBuffer extends Buffer {
 		// The rest of the lines to insert between
 		newLines = newLines.subList(1, Math.max(newLines.size() - 2, 1));
 
-		String existingLine = lines.get(line);
+		String existingLine = lines.get(pos.getLine());
 
 		// The part of the original line that should stay (before column)
-		String stay = existingLine.substring(0, column);
+		String stay = existingLine.substring(0, pos.getColumn());
 		// The part of the original line that should be moved (after column)
-		String move = existingLine.substring(column);
+		String move = existingLine.substring(pos.getColumn());
 
 		// If text spans multiple lines
 		if(lastLine != null) {
 			// Add the first line to the line it's inserting at
-			lines.set(line, stay + firstLine);
+			lines.set(pos.getLine(), stay + firstLine);
 			// And add the last line after it (with the rest of the original line)
-			lines.add(line + 1, lastLine + move);
+			lines.add(pos.getLine() + 1, lastLine + move);
 		} else {
 			// Insert it in the middle of the original line
-			lines.set(line, stay + firstLine + move);
+			lines.set(pos.getLine(), stay + firstLine + move);
 		}
 		// Add the rest of the lines between
-		lines.addAll(line + 1, newLines);
-
-//		System.out.println("[ " + Joiner.on(", ").join(new String[] {
-//			"insertImpl",
-//			"column = [" + Integer.toString(column) + "]",
-//			"line = [" + Integer.toString(line) + "]",
-//			"first = [" + firstLine + "]",
-//			"last = [" + lastLine + "]",
-//			"newLines = [ " + Joiner.on(", ").join(FluentIterable.from(newLines).transform(new Function<String, String>() {
-//				@Override
-//				public String apply(String input) {
-//					return "[" + input + "]";
-//				}
-//			})) + " ]",
-//			"existing = [" + existingLine + "]",
-//			"stay = [" + stay + "]",
-//			"move = [" + move + "]",
-//			"lines = [ " + Joiner.on(", ").join(lines) + " ]"
-//		}) + " ]");
+		lines.addAll(pos.getLine() + 1, newLines);
 
 		return text.length();
 	}
 
 	@Override
-	public String removeImpl(int column, int line, int length) {
+	public String removeImpl(BufferPos pos, int length) {
 		String removedContent = "";
 
 		while(length > 0) {
-			String tLine = lines.get(line);
-			String remainingLine = tLine.substring(column);
+			String tLine = lines.get(pos.getLine());
+			String remainingLine = tLine.substring(pos.getColumn());
 
 			if(remainingLine.length() == 0) {
-				if(line == lines.size() - 1) {
+				if(pos.getLine() == lines.size() - 1) {
 					length = 0;
 				} else {
-					String nextLine = lines.remove(line + 1);
-					lines.set(line, tLine + nextLine);
+					String nextLine = lines.remove(pos.getLine() + 1);
+					lines.set(pos.getLine(), tLine + nextLine);
 					length -= 1;
 					removedContent += "\n";
 				}
 			} else if(length >= remainingLine.length()) {
 				removedContent += remainingLine;
 				length -= remainingLine.length();
-				lines.set(line, tLine.substring(0, column));
+				lines.set(pos.getLine(), tLine.substring(0, pos.getColumn()));
 			} else {
 				removedContent += remainingLine.substring(0, length);
 				length = 0;
-				lines.set(line, tLine.substring(0, column) + remainingLine.substring(length + 1));
+				lines.set(pos.getLine(), tLine.substring(0, pos.getColumn()) + remainingLine.substring(length + 1));
 			}
 		}
 

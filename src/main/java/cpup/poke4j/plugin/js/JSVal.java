@@ -93,7 +93,7 @@ public abstract class JSVal {
 		if(val == null) {
 			return null;
 		} else if(val instanceof List) {
-			return new JSArray((List) val);
+			return new JSArray((List<Object>) val);
 		} else if(val instanceof Map) {
 			return new JSObj((Map<String, Object>) val);
 		} else {

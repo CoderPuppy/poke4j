@@ -1,5 +1,6 @@
 package cpup.poke4j.plugin.movement;
 
+import cpup.poke4j.BufferPos;
 import cpup.poke4j.Cursor;
 import cpup.poke4j.plugin.CommandRun;
 import cpup.poke4j.plugin.ICommand;
@@ -16,19 +17,15 @@ public class MoveUDCommand implements ICommand {
 		for(Cursor cursor : run.getBuffer().getCursors()) {
 			for(int i = 0; i < amt; i++) {
 				cursor.setSelection(null);
-				final int line = cursor.getLine();
-				final int column = cursor.getColumn();
+				final int line = cursor.getPos().getLine();
+				final int column = cursor.getPos().getColumn();
 				if(up) {
 					if(line > 0) {
-						final int newLine = line - 1;
-						cursor.setLine(newLine);
-						cursor.setColumn(run.getBuffer().findColumn(column, newLine));
+						cursor.setPos(run.getBuffer().find(new BufferPos(column, line - 1)));
 					}
 				} else {
 					if(line < run.getBuffer().getLineCount() - 1) {
-						final int newLine = line + 1;
-						cursor.setLine(newLine);
-						cursor.setColumn(run.getBuffer().findColumn(column, newLine));
+						cursor.setPos(run.getBuffer().find(new BufferPos(column, line + 1)));
 					}
 				}
 			}

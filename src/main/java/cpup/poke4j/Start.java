@@ -18,18 +18,6 @@ public class Start {
 
 		poke.setMode(BasicMode.get());
 
-		final Buffer buffer = poke.getBuffers().get(0);
-
-//		buffer.insert(-1, -1, "Hello");
-//		buffer.insert(-1, -1, "\nWorld");
-//		buffer.insert(-1, -2, "\nfoo\nbar\nbaz");
-
-//		new CommandRun(poke, LoadCommand.get(), JSArray.of("test.txt")).invoke();
-//
-//		new CommandRun(poke, SelectCommand.get(), JSArray.of(0, 1, 3)).invoke();
-//
-//		new CommandRun(poke, SaveCommand.get(), JSArray.of("test.txt")).invoke();
-
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {

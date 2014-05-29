@@ -19,11 +19,14 @@ public abstract class Buffer {
 
 	public Buffer(Poke _poke) {
 		poke = _poke;
-		cursors.add(new Cursor(poke, this, 0, 0));
+		cursors.add(new Cursor(poke, this, new BufferPos(0, 0)));
 	}
 
-	// Get the real line to operate on (so if the line doesn't exist it goes to the last one that does)
-	public int findLine(int line) {
+	// Get a real position (indexing from the end and out of bounds)
+	public BufferPos find(BufferPos pos) {
+		int column = pos.getColumn();
+		int line = pos.getLine();
+
 		final int lineSize = getLineCount();
 
 		if(line > lineSize - 1) {
@@ -33,13 +36,6 @@ public abstract class Buffer {
 		if(line < 0) {
 			line = Math.max(lineSize + line, 0);
 		}
-
-		return line;
-	}
-
-	// Get the real column
-	public int findColumn(int column, int line) {
-		line = findLine(line);
 
 		String existingLine = getLines().get(line);
 
@@ -51,7 +47,7 @@ public abstract class Buffer {
 			column = Math.max(existingLine.length() + column + 1, 0);
 		}
 
-		return column;
+		return new BufferPos(column, line);
 	}
 
 	public BufferPos offset(BufferPos pos, int offset) {
@@ -101,16 +97,16 @@ public abstract class Buffer {
 	protected final List<Cursor> cursors = new ArrayList<Cursor>();
 
 	// Wrappers for InsertOperation and RemoveOperation for ease of use
-	public Buffer insert(int column, int line, String text) {
-		return apply(new InsertOperation(column, line, text));
+	public Buffer insert(BufferPos pos, String text) {
+		return apply(new InsertOperation(pos, text));
 	}
-	public Buffer remove(int column, int line, int length) {
-		return apply(new RemoveOperation(column, line, length));
+	public Buffer remove(BufferPos pos, int length) {
+		return apply(new RemoveOperation(pos, length));
 	}
 
 	// The buffer handles inserting and deleting so it can have a different data structure
-	public abstract int insertImpl(int column, int line, String text);
-	public abstract String removeImpl(int column, int line, int length);
+	public abstract int insertImpl(BufferPos pos, String text);
+	public abstract String removeImpl(BufferPos pos, int length);
 
 	// This should be handled specially for each data structure. parsing stuff for example
 	public abstract void load(BufferedReader reader) throws Exception;
