@@ -36,23 +36,30 @@ public class BufferPos {
 	public BufferPos move(Buffer buffer, int dist) {
 		int column = getColumn();
 		int line = getLine();
-		final int amt = Math.abs(dist);
-		if(amt == 0)
+		final int amt = Math.abs(dist); // pull off the sign so i only have to loop one way
+		if(amt == 0) {
 			return this;
-		final int dir = dist / amt;
+		}
+		final int dir = dist / amt; // the direction to move in (-1 for back, 1 for forwards)
 		for(int i = 0; i < amt; i++) {
+			// if this is at the end of the line (and we're going forwards)
 			if(dir == 1 && column == buffer.getLine(line).length()) {
+				// try to go down a line
 				if(line < buffer.getLineCount() - 1) {
 					line += 1;
 					column = 0;
 				} else {
+					// otherwise we're done
 					break;
 				}
+			// if this is at the start of the line (and we're going backwards)
 			} else if(dir == -1 && column == 0) {
+				// try to go up a line
 				if(line > 0) {
 					line -= 1;
 					column = buffer.getLine(line).length();
 				} else {
+					// otherwise we're done
 					break;
 				}
 			} else {
@@ -62,52 +69,43 @@ public class BufferPos {
 		return new BufferPos(column, line);
 	}
 
-	protected final Pattern leftWhitespaceRE = Pattern.compile("\\s+$");
 	protected final Pattern leftTextRE = Pattern.compile("(?:[a-zA-Z]+\\s*|[^a-zA-Z])$");
-
-	protected final Pattern rightWhitespaceRE = Pattern.compile("^\\s+");
 	protected final Pattern rightTextRE = Pattern.compile("^(?:\\s*[a-zA-Z]+|[^a-zA-Z])");
 
 	public BufferPos moveWord(Buffer buffer, int dist) {
 		BufferPos pos = this;
-		final int amt = Math.abs(dist);
-		final int dir = dist / amt;
+		final int amt = Math.abs(dist); // how much needs to be moved (without a direction)
+		if(amt == 0) {
+			return this;
+		}
+		final int dir = dist / amt; // the direction to move in (-1 for back, 1 for forwards)
 		for(int i = 0; i < amt; i++) {
 			int moveAmt = 0;
 			final String sline = buffer.getLine(line);
 			if(dir == -1) {
 				if(column == 0) {
+					// if this is the first column then try to move up a line (one character)
 					moveAmt = 1;
 				} else {
-					String stuff = sline.substring(0, column);
-//					final Matcher whitespaceMatch = leftWhitespaceRE.matcher(stuff);
-//					if(whitespaceMatch.find()) {
-//						stuff = stuff.substring(0, whitespaceMatch.end() - whitespaceMatch.start());
-//						moveAmt = whitespaceMatch.end() - whitespaceMatch.start();
-//					}
-					final Matcher textMatch = leftTextRE.matcher(stuff);
+					final Matcher textMatch = leftTextRE.matcher(sline.substring(0, column));
 					if(textMatch.find()) {
-						stuff = stuff.substring(0, textMatch.end() - textMatch.start());
+						// move back however much the pattern matched (end - start should be positive)
 						moveAmt += textMatch.end() - textMatch.start();
 					}
 				}
 			} else if(dir == 1) {
 				if(column == sline.length()) {
+					// move down a line (one character)
 					moveAmt = 1;
 				} else {
-					String stuff = sline.substring(column);
-//					final Matcher whitespaceMatch = rightWhitespaceRE.matcher(stuff);
-//					if(whitespaceMatch.find()) {
-//						stuff = stuff.substring(0, whitespaceMatch.end());
-//						moveAmt = whitespaceMatch.end();
-//					}
-					final Matcher textMatch = rightTextRE.matcher(stuff);
+					final Matcher textMatch = rightTextRE.matcher(sline.substring(column));
 					if(textMatch.find()) {
-						stuff = stuff.substring(0, textMatch.end());
+						// move forward however much the pattern matched
 						moveAmt += textMatch.end();
 					}
 				}
 			}
+			// do the move (multiple the amt by the direction (makes stuff simpler while calculating this))
 			pos = move(buffer, moveAmt * dir);
 		}
 		return pos;

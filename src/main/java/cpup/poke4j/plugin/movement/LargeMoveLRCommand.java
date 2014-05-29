@@ -21,22 +21,26 @@ public class LargeMoveLRCommand implements ICommand {
 
 		switch(dir) {
 			case -1:
+				// go to the start of the line (set the column to 0)
 				for(Cursor cursor : cursors) {
 					cursor.setPos(new BufferPos(0, cursor.getPos().getLine()));
 				}
 				break;
 			case -2:
+				// go to the start of the buffer (set the column and line to 0)
 				cursors.clear();
 				cursors.add(new Cursor(poke, buffer, new BufferPos(0, 0)));
 				break;
 
 			case 1:
+				// go to the end of the line (set the column to the length of the line)
 				for(Cursor cursor : cursors) {
 					final int line = cursor.getPos().getLine();
 					cursor.setPos(new BufferPos(buffer.getLine(line).length(), line));
 				}
 				break;
 			case 2:
+				// go to the end of the buffer (set the column and line to the largest they can be)
 				cursors.clear();
 				final int line = buffer.getLineCount() - 1;
 				final int column = buffer.getLine(line).length();

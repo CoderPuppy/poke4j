@@ -40,9 +40,9 @@ public class BasicMode extends Mode implements ClipboardOwner {
 		final boolean altGr = input.isAltGraphDown();
 		final boolean shift = input.isShiftDown();
 		final boolean meta = input.isMetaDown();
-		final boolean allButCtrlAndShift = alt || altGr || meta;
-		final boolean allButCtrl = allButCtrlAndShift || shift;
-		final boolean allMods = allButCtrl || ctrl;
+		final boolean allButCtrlAndShift = alt || altGr || meta; // if any modifier but ctrl or shift is down this is true
+		final boolean allButCtrl = allButCtrlAndShift || shift; // if any modifier but ctrl is down this is true
+		final boolean allMods = allButCtrl || ctrl; // if any modifier is down this is true
 		if(input instanceof KeyInput) {
 			final KeyInput keyInput = (KeyInput) input;
 			final KeyInput.Type keyType = keyInput.getType();
@@ -50,15 +50,21 @@ public class BasicMode extends Mode implements ClipboardOwner {
 			final char keyChar = keyInput.getKeyChar();
 
 			if(keyCode == KeyEvent.VK_LEFT && !allButCtrlAndShift) {
+				// if you're holding shift select stuff
+				// ctrl is passed through to the word variable
 				if(shift) {
 					new CommandRun(poke, buffer, SelectCommand.get(), JSArray.of(-1, -1, ctrl)).invoke();
 				} else {
+					// otherwise just move the cursor(s)
 					new CommandRun(poke, buffer, MoveLRCommand.get(), JSArray.of(-1, ctrl)).invoke();
 				}
 			} else if(keyCode == KeyEvent.VK_RIGHT && !allButCtrlAndShift) {
+				// if you're holding shift select stuff
+				// ctrl is passed through to the word variable
 				if(shift) {
 					new CommandRun(poke, buffer, SelectCommand.get(), JSArray.of(-1, 1, ctrl)).invoke();
 				} else {
+					// otherwise just move the cursor(s)
 					new CommandRun(poke, buffer, MoveLRCommand.get(), JSArray.of(1, ctrl)).invoke();
 				}
 			} else if(keyCode == KeyEvent.VK_DOWN && !allMods) {
@@ -66,15 +72,19 @@ public class BasicMode extends Mode implements ClipboardOwner {
 			} else if(keyCode == KeyEvent.VK_UP && !allMods) {
 				new CommandRun(poke, buffer, MoveUDCommand.get(), JSArray.of(-1)).invoke();
 			} else if(keyCode == KeyEvent.VK_BACK_SPACE && !allMods) {
+				// remove one character back (length of -1)
 				new CommandRun(poke, buffer, RemoveCommand.get(), JSArray.of(-1)).invoke();
 			} else if(keyCode == KeyEvent.VK_DELETE && !allMods) {
 				new CommandRun(poke, buffer, RemoveCommand.get(), JSArray.of(1)).invoke();
-			} else if(keyCode == KeyEvent.VK_S && ctrl && !allButCtrl) {
+			} else if(keyCode == KeyEvent.VK_S && ctrl && !allButCtrlAndShift) {
 				String path = null;
+				// try to use an existing path if shift isn't down
 				if(!shift) {
 					path = buffer.getHints().get("file:path", String.class);
 				}
+				// if it's still null
 				if(path == null) {
+					// open a file picker
 					JFileChooser chooser = new JFileChooser();
 					chooser.setCurrentDirectory(new File("."));
 					if(chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
@@ -90,6 +100,8 @@ public class BasicMode extends Mode implements ClipboardOwner {
 					new CommandRun(poke, buffer, LoadCommand.get(), JSArray.of(chooser.getSelectedFile().getAbsolutePath())).invoke();
 				}
 			} else if(keyCode == KeyEvent.VK_C && ctrl && !allButCtrl) {
+				// get all the selected text and join it by newline (not the best option)
+				// TODO: this really should only add newlines if the next selection is on a new line
 				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(
 					Joiner.on("\n").join(
 						FluentIterable.from(buffer.getCursors())
@@ -102,19 +114,26 @@ public class BasicMode extends Mode implements ClipboardOwner {
 					)
 				), this);
 			} else if(keyCode == KeyEvent.VK_V && ctrl && !allButCtrl) {
+				// get the contents
 				Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+				// if it has a string
 				if(contents != null && contents.isDataFlavorSupported(DataFlavor.stringFlavor)) {
 					try {
+						// then insert it
 						new CommandRun(poke, buffer, InsertCommand.get(), JSArray.of((String) contents.getTransferData(DataFlavor.stringFlavor))).invoke();
 					} catch (UnsupportedFlavorException | IOException e) {
 						e.printStackTrace();
 					}
 				}
 			} else if(keyCode == KeyEvent.VK_HOME && !allButCtrl) {
+				// large movements back (if ctrl is down go all the way back to the start of the buffer)
 				new CommandRun(poke, buffer, LargeMoveLRCommand.get(), JSArray.of(ctrl ? -2 : -1)).invoke();
 			} else if(keyCode == KeyEvent.VK_END && !allButCtrl) {
+				// large movements forwards (if ctrl is down go all the way to the end of the buffer)
 				new CommandRun(poke, buffer, LargeMoveLRCommand.get(), JSArray.of(ctrl ? 2 : 1)).invoke();
-			} else if(keyType == KeyInput.Type.type && !ctrl && !alt && !altGr && !meta && keyChar != '\b' && keyChar != '\u007F') {
+			// if no modifiers are down and the char isn't backspace or delete
+			} else if(keyType == KeyInput.Type.type && !allMods && keyChar != '\b' && keyChar != '\u007F') {
+				// then insert it
 				new CommandRun(poke, buffer, InsertCommand.get(), JSArray.of(Character.toString(keyInput.getKeyChar()))).invoke();
 			} else {
 				logger.debug("Unhandled KeyInput: {} {} ({}), char = {}", keyType.toString(), KeyEvent.getKeyText(keyCode), keyCode, keyChar);
