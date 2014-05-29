@@ -3,10 +3,8 @@ package cpup.poke4j.plugin.input;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
-import cpup.poke4j.Buffer;
-import cpup.poke4j.BufferPos;
+import cpup.poke4j.*;
 import cpup.poke4j.Cursor;
-import cpup.poke4j.Poke;
 import cpup.poke4j.plugin.CommandRun;
 import cpup.poke4j.plugin.editing.InsertCommand;
 import cpup.poke4j.plugin.editing.RemoveCommand;
@@ -100,19 +98,20 @@ public class BasicMode extends Mode implements ClipboardOwner {
 					new CommandRun(poke, buffer, LoadCommand.get(), JSArray.of(chooser.getSelectedFile().getAbsolutePath())).invoke();
 				}
 			} else if(keyCode == KeyEvent.VK_C && ctrl && !allButCtrl) {
-				// get all the selected text and join it by newline (not the best option)
-				// TODO: this really should only add newlines if the next selection is on a new line
-				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(
-					Joiner.on("\n").join(
-						FluentIterable.from(buffer.getCursors())
-							.transform(new Function<Cursor, String>() {
-								@Override
-								public String apply(Cursor input) {
-									return input.getSelectionWithDefault().getText();
-								}
-							})
-					)
-				), this);
+				// get all the selected text and combine it
+				String copied = "";
+				int line = -1;
+				for(Cursor cursor : buffer.getCursors()) {
+					if(cursor.getSelection() != null) {
+						final Selection sel = cursor.getSelection();
+						if(sel.getBegin().getLine() > line && line != -1) {
+							copied += "\n";
+						}
+						copied += sel.getText();
+						line = sel.getEnd().getLine();
+					}
+				}
+				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(copied), this);
 			} else if(keyCode == KeyEvent.VK_V && ctrl && !allButCtrl) {
 				// get the contents
 				Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
