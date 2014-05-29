@@ -15,5 +15,12 @@ dependencies {
 	runtime 'ch.qos.logback:logback-classic:1.1.2'
 }
 
+jar {
+	from {
+		(configurations.compile + configurations.runtime).collect { it.isDirectory() ? it : zipTree(it) }
+	}
+	manifest { attributes 'Main-Class': 'cpup.poke4j.Start' }
+}
+
 apply plugin: 'maven'
 apply plugin: 'idea'
