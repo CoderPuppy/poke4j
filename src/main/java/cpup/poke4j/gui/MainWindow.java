@@ -6,10 +6,15 @@ import cpup.poke4j.ui.PokeUI;
 import cpup.poke4j.ui.UI;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class MainWindow extends JFrame implements PokeUI {
 	protected final Poke poke;
 	protected GUI mainUI;
+	protected final Font font = new Font(Font.MONOSPACED, Font.PLAIN, 11);
+	protected final FontMetrics metrics = getFontMetrics(font);
+	protected final int lineHeight = metrics.getHeight();
+	protected final int charWidth = metrics.getWidths()[0];
 
 	public MainWindow(Poke _poke) {
 		final MainWindow self = this;
@@ -23,6 +28,7 @@ public class MainWindow extends JFrame implements PokeUI {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 		mainUI = new BufferGUI(this, null, poke.getBuffers().get(0));
+		mainUI.startup();
 		getContentPane().add(mainUI);
 		mainUI.grabFocus();
 	}
@@ -38,8 +44,28 @@ public class MainWindow extends JFrame implements PokeUI {
 
 	public void setMainUI(GUI _mainUI) {
 		getContentPane().remove(mainUI);
-		this.mainUI = _mainUI;
+		mainUI.cleanup();
+		mainUI = _mainUI;
+		_mainUI.startup();
 		getContentPane().add(_mainUI);
 		_mainUI.grabFocus();
+		revalidate();
+		repaint();
+	}
+
+	public Font getFont() {
+		return font;
+	}
+
+	public FontMetrics getMetrics() {
+		return metrics;
+	}
+
+	public int getLineHeight() {
+		return lineHeight;
+	}
+
+	public int getCharWidth() {
+		return charWidth;
 	}
 }

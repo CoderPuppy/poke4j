@@ -9,8 +9,8 @@ public interface Input {
 	// Getters and Setters
 	public abstract Poke getPoke();
 	public abstract Buffer getBuffer();
-//	public abstract PokeUI getPokeUI();
-//	public abstract UI getActiveUI();
+	public abstract PokeUI getPokeUI();
+	public abstract UI getActiveUI();
 	public abstract int getModifiers();
 	public abstract int getModifiersEx();
 	public abstract boolean isShiftDown();

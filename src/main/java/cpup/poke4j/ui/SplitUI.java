@@ -5,6 +5,9 @@ public interface SplitUI extends UI {
 	public UI getFirst();
 	public UI getSecond();
 	public Dir getDirection();
+	public void setDirection(Dir direction);
+	public int getSplit();
+	public void setSplit(int split);
 
 	public static enum Dir {
 		VERTICAL,

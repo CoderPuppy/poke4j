@@ -127,7 +127,7 @@ public abstract class Buffer {
 			historyPointer += 1;
 		}
 
-		applyOperationEv.emit(new ApplyOperationEvent<OP, OD>(poke, this, operation, data));
+		applyOperationEv.emit(new ApplyOperationEvent<OP, OD>(this, operation, data));
 
 		return this;
 	}
@@ -135,16 +135,16 @@ public abstract class Buffer {
 		return apply(operation, true);
 	}
 
+	public final EventRegister<Cursor.MoveEvent> moveCursorEv = new EventRegister<Cursor.MoveEvent>();
+
 	// Fired when an operation is applied (whether it's added to the history or not)
 	public final EventRegister<ApplyOperationEvent> applyOperationEv = new EventRegister<ApplyOperationEvent>();
 	public static class ApplyOperationEvent<OP extends IOperation<OD>, OD extends OperationData<OP>> {
-		protected final Poke poke;
 		protected final Buffer buffer;
 		protected final OP operation;
 		protected final OD data;
 
-		public ApplyOperationEvent(Poke _poke, Buffer _buffer, OP _operation, OD _data) {
-			poke = _poke;
+		public ApplyOperationEvent(Buffer _buffer, OP _operation, OD _data) {
 			buffer = _buffer;
 			operation = _operation;
 			data = _data;
@@ -152,7 +152,7 @@ public abstract class Buffer {
 
 		// Getters and Setters
 		public Poke getPoke() {
-			return poke;
+			return buffer.getPoke();
 		}
 
 		public Buffer getBuffer() {

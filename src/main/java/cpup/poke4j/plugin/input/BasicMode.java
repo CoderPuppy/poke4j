@@ -41,6 +41,7 @@ public class BasicMode extends Mode implements ClipboardOwner {
 		final boolean allButCtrlAndShift = alt || altGr || meta; // if any modifier but ctrl or shift is down this is true
 		final boolean allButCtrl = allButCtrlAndShift || shift; // if any modifier but ctrl is down this is true
 		final boolean allMods = allButCtrl || ctrl; // if any modifier is down this is true
+		final boolean allButShift = alt || altGr || meta || ctrl; // if any modifier but shift is down this is true
 		if(input instanceof KeyInput) {
 			final KeyInput keyInput = (KeyInput) input;
 			final KeyInput.Type keyType = keyInput.getType();
@@ -120,7 +121,9 @@ public class BasicMode extends Mode implements ClipboardOwner {
 					try {
 						// then insert it
 						new CommandRun(poke, buffer, InsertCommand.get(), JSArray.of((String) contents.getTransferData(DataFlavor.stringFlavor))).invoke();
-					} catch (UnsupportedFlavorException | IOException e) {
+					} catch (UnsupportedFlavorException e) {
+						e.printStackTrace();
+					} catch(IOException e) {
 						e.printStackTrace();
 					}
 				}
@@ -130,8 +133,10 @@ public class BasicMode extends Mode implements ClipboardOwner {
 			} else if(keyCode == KeyEvent.VK_END && !allButCtrl) {
 				// large movements forwards (if ctrl is down go all the way to the end of the buffer)
 				new CommandRun(poke, buffer, LargeMoveLRCommand.get(), JSArray.of(ctrl ? 2 : 1)).invoke();
+			} else if(keyCode == KeyEvent.VK_BACK_SLASH && ctrl && shift && !allButCtrlAndShift) {
+				input.getActiveUI().splitH();
 			// if no modifiers are down and the char isn't backspace or delete
-			} else if(keyType == KeyInput.Type.type && !allMods && keyChar != '\b' && keyChar != '\u007F') {
+			} else if(keyType == KeyInput.Type.type && !allButShift && keyChar != '\b' && keyChar != '\u007F') {
 				// then insert it
 				new CommandRun(poke, buffer, InsertCommand.get(), JSArray.of(Character.toString(keyInput.getKeyChar()))).invoke();
 			} else {

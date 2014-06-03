@@ -3,19 +3,25 @@ package cpup.poke4j.plugin.input;
 import cpup.poke4j.Buffer;
 import cpup.poke4j.BufferPos;
 import cpup.poke4j.Poke;
+import cpup.poke4j.ui.PokeUI;
+import cpup.poke4j.ui.UI;
 
 import java.awt.event.MouseEvent;
 
 public class MouseInput implements Input {
 	protected final Poke poke;
 	protected final Buffer buffer;
+	protected final PokeUI pokeUI;
+	protected final UI activeUI;
 	protected final Type type;
 	protected final MouseEvent e;
 	protected final BufferPos pos;
 
-	public MouseInput(Poke _poke, Buffer _buffer, Type _type, MouseEvent _e, BufferPos _pos) {
+	public MouseInput(Poke _poke, Buffer _buffer, PokeUI _pokeUI, UI _activeUI, Type _type, MouseEvent _e, BufferPos _pos) {
 		poke = _poke;
 		buffer = _buffer;
+		pokeUI = _pokeUI;
+		activeUI = _activeUI;
 		type = _type;
 		e = _e;
 		pos = _pos;
@@ -28,6 +34,14 @@ public class MouseInput implements Input {
 
 	public Buffer getBuffer() {
 		return buffer;
+	}
+
+	public PokeUI getPokeUI() {
+		return pokeUI;
+	}
+
+	public UI getActiveUI() {
+		return activeUI;
 	}
 
 	public Type getType() {

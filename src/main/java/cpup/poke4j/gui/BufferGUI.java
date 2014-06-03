@@ -2,6 +2,7 @@ package cpup.poke4j.gui;
 
 import cpup.poke4j.*;
 import cpup.poke4j.Cursor;
+import cpup.poke4j.events.EventHandler;
 import cpup.poke4j.plugin.CommandRun;
 import cpup.poke4j.plugin.input.KeyInput;
 import cpup.poke4j.plugin.input.MouseInput;
@@ -17,11 +18,10 @@ import java.util.List;
 public class BufferGUI extends GUI implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 	protected final Poke poke;
 	protected final Buffer buffer;
-	protected final Font font = new Font(Font.MONOSPACED, Font.PLAIN, 11);
-	protected final FontMetrics metrics = getFontMetrics(font);
-	protected final int lineHeight = metrics.getHeight();
-	protected final int charWidth = metrics.getWidths()[0];
 	protected int scroll = 0;
+
+	protected EventHandler<Buffer.ApplyOperationEvent> applyOperationHandler;
+	protected EventHandler<Cursor.MoveEvent> moveCursorHandler;
 
 	public BufferGUI(MainWindow _mainWindow, GUI _parent, Buffer _buffer) {
 		super(_mainWindow, _parent);
@@ -36,6 +36,29 @@ public class BufferGUI extends GUI implements KeyListener, MouseListener, MouseM
 		addMouseMotionListener(this);
 		addMouseWheelListener(this);
 		setFocusable(true);
+	}
+
+	@Override
+	public void startup() {
+		buffer.applyOperationEv.listen(applyOperationHandler = new EventHandler<Buffer.ApplyOperationEvent>() {
+			@Override
+			public void handle(Buffer.ApplyOperationEvent e) {
+				repaint();
+			}
+		});
+
+		buffer.moveCursorEv.listen(moveCursorHandler = new EventHandler<Cursor.MoveEvent>() {
+			@Override
+			public void handle(Cursor.MoveEvent e) {
+				repaint();
+			}
+		});
+	}
+
+	@Override
+	public void cleanup() {
+		buffer.applyOperationEv.unlisten(applyOperationHandler);
+		buffer.moveCursorEv.unlisten(moveCursorHandler);
 	}
 
 	@Override
@@ -103,20 +126,19 @@ public class BufferGUI extends GUI implements KeyListener, MouseListener, MouseM
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		poke.getMode().handle(new MouseInput(poke, buffer, MouseInput.Type.click, e, new BufferPos(getColumn(e.getX()), getLine(e.getY()))));
-		repaint();
+		grabFocus();
+		poke.getMode().handle(new MouseInput(poke, buffer, mainWindow, this, MouseInput.Type.click, e, new BufferPos(getColumn(e.getX()), getLine(e.getY()))));
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		poke.getMode().handle(new MouseInput(poke, buffer, MouseInput.Type.press, e, new BufferPos(getColumn(e.getX()), getLine(e.getY()))));
-		repaint();
+		grabFocus();
+		poke.getMode().handle(new MouseInput(poke, buffer, mainWindow, this, MouseInput.Type.press, e, new BufferPos(getColumn(e.getX()), getLine(e.getY()))));
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		poke.getMode().handle(new MouseInput(poke, buffer, MouseInput.Type.drag, e, new BufferPos(getColumn(e.getX()), getLine(e.getY()))));
-		repaint();
+		poke.getMode().handle(new MouseInput(poke, buffer, mainWindow, this, MouseInput.Type.drag, e, new BufferPos(getColumn(e.getX()), getLine(e.getY()))));
 	}
 
 	@Override
@@ -135,14 +157,17 @@ public class BufferGUI extends GUI implements KeyListener, MouseListener, MouseM
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		poke.getMode().handle(new KeyInput(poke, buffer, KeyInput.Type.press, e));
-		repaint();
+		poke.getMode().handle(new KeyInput(poke, buffer, mainWindow, this, KeyInput.Type.press, e));
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		poke.getMode().handle(new KeyInput(poke, buffer, KeyInput.Type.type, e));
-		repaint();
+		poke.getMode().handle(new KeyInput(poke, buffer, mainWindow, this, KeyInput.Type.type, e));
+	}
+
+	@Override
+	public GUI duplicateGUI() {
+		return new BufferGUI(mainWindow, parent, buffer);
 	}
 
 	@Override

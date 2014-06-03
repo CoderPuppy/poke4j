@@ -13,6 +13,11 @@ public class EventRegister<ET> {
 		return this;
 	}
 
+	public EventRegister<ET> unlisten(EventHandler<ET> handler) {
+		handlers.remove(handler);
+		return this;
+	}
+
 	public EventRegister<ET> emit(ET event) {
 		for(EventHandler<ET> handler : handlers) {
 			handler.handle(event);
