@@ -5,6 +5,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
 import cpup.poke4j.*;
 import cpup.poke4j.Cursor;
+import cpup.poke4j.gui.BufferGUI;
 import cpup.poke4j.plugin.CommandRun;
 import cpup.poke4j.plugin.editing.InsertCommand;
 import cpup.poke4j.plugin.editing.RemoveCommand;
@@ -15,6 +16,7 @@ import cpup.poke4j.plugin.movement.LargeMoveLRCommand;
 import cpup.poke4j.plugin.movement.MoveLRCommand;
 import cpup.poke4j.plugin.movement.MoveUDCommand;
 import cpup.poke4j.plugin.movement.SelectCommand;
+import cpup.poke4j.ui.BufferUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,7 +98,10 @@ public class BasicMode extends Mode implements ClipboardOwner {
 				JFileChooser chooser = new JFileChooser();
 				chooser.setCurrentDirectory(new File("."));
 				if(chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-					new CommandRun(poke, buffer, LoadCommand.get(), JSArray.of(chooser.getSelectedFile().getAbsolutePath())).invoke();
+					final Buffer newBuffer = new TextBuffer(poke);
+					poke.addBuffer(newBuffer);
+					input.getActiveUI().replace(input.getActiveUI().getPokeUI().createBufferUI(newBuffer));
+					new CommandRun(poke, newBuffer, LoadCommand.get(), JSArray.of(chooser.getSelectedFile().getAbsolutePath())).invoke();
 				}
 			} else if(keyCode == KeyEvent.VK_C && ctrl && !allButCtrl) {
 				// get all the selected text and combine it

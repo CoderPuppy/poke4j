@@ -1,7 +1,8 @@
 package cpup.poke4j.gui;
 
-import cpup.poke4j.events.EventHandler;
+import cpup.poke4j.Buffer;
 import cpup.poke4j.Poke;
+import cpup.poke4j.ui.BufferUI;
 import cpup.poke4j.ui.PokeUI;
 import cpup.poke4j.ui.UI;
 
@@ -27,10 +28,19 @@ public class MainWindow extends JFrame implements PokeUI {
 		setResizable(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-		mainUI = new BufferGUI(this, null, poke.getBuffers().get(0));
+		mainUI = createBufferGUI(poke.getBuffers().get(0));
 		mainUI.startup();
 		getContentPane().add(mainUI);
 		mainUI.grabFocus();
+	}
+
+	public BufferGUI createBufferGUI(Buffer buffer) {
+		return new BufferGUI(this, null, buffer);
+	}
+
+	@Override
+	public BufferUI createBufferUI(Buffer buffer) {
+		return createBufferGUI(buffer);
 	}
 
 	// Getters and Setters

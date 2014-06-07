@@ -9,13 +9,14 @@ import cpup.poke4j.plugin.input.MouseInput;
 import cpup.poke4j.plugin.js.JSArray;
 import cpup.poke4j.plugin.movement.MoveLRCommand;
 import cpup.poke4j.plugin.movement.MoveUDCommand;
+import cpup.poke4j.ui.BufferUI;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 
-public class BufferGUI extends GUI implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
+public class BufferGUI extends GUI implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener, BufferUI {
 	protected final Poke poke;
 	protected final Buffer buffer;
 	protected int scroll = 0;

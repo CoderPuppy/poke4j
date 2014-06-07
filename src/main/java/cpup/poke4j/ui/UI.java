@@ -6,6 +6,7 @@ public interface UI {
 	public abstract UI duplicate();
 	public abstract void startup();
 	public abstract void cleanup();
+	public abstract void replace(UI rep);
 
 	// Getters and Setters
 	public abstract PokeUI getPokeUI();

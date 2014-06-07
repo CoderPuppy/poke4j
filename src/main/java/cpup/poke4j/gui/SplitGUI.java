@@ -50,11 +50,11 @@ public class SplitGUI extends GUI implements SplitUI, ContainerGUI {
 	@Override
 	public void replace(GUI sel, GUI repl) {
 		if(first == sel) {
-			first = repl;
+			setFirst(repl);
 		}
 
 		if(second == sel) {
-			second = repl;
+			setSecond(repl);
 		}
 	}
 

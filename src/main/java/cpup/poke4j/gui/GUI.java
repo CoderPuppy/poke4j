@@ -26,6 +26,24 @@ public abstract class GUI extends JComponent implements UI {
 
 	public abstract GUI duplicateGUI();
 
+	public void replaceGUI(GUI rep) {
+		if(parent == null) {
+			mainWindow.setMainUI(rep);
+		} else {
+			if(parent instanceof ContainerGUI) {
+				((ContainerGUI) parent).replace(this, rep);
+			}
+		}
+	}
+
+	@Override
+	public void replace(UI rep) {
+		if(!(rep instanceof GUI)) {
+			throw new ClassCastException("replacement must be a GUI");
+		}
+		replaceGUI((GUI) rep);
+	}
+
 	@Override
 	public void startup() {}
 
@@ -40,11 +58,7 @@ public abstract class GUI extends JComponent implements UI {
 	@Override
 	public SplitUI splitH() {
 		SplitGUI split = new SplitGUI(mainWindow, parent, SplitUI.Dir.HORIZONTAL, this, this.duplicateGUI());
-		if(parent == null) {
-			mainWindow.setMainUI(split);
-		} else if(parent instanceof ContainerGUI) {
-			((ContainerGUI) parent).replace(this, split);
-		}
+		replaceGUI(split);
 		parent = split;
 		split.getSecondGUI().parent = split;
 		return split;
