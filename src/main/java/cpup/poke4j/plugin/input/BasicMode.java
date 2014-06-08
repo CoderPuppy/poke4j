@@ -40,17 +40,17 @@ public class BasicMode extends Mode implements ClipboardOwner {
 		final boolean altGr = input.isAltGraphDown();
 		final boolean shift = input.isShiftDown();
 		final boolean meta = input.isMetaDown();
-		final boolean allButCtrlAndShift = alt || altGr || meta; // if any modifier but ctrl or shift is down this is true
-		final boolean allButCtrl = allButCtrlAndShift || shift; // if any modifier but ctrl is down this is true
-		final boolean allMods = allButCtrl || ctrl; // if any modifier is down this is true
-		final boolean allButShift = alt || altGr || meta || ctrl; // if any modifier but shift is down this is true
+		final boolean anyExceptCtrlOrShift = alt || altGr || meta; // if any modifier but ctrl or shift is down this is true
+		final boolean anyExceptCtrl = anyExceptCtrlOrShift || shift; // if any modifier but ctrl is down this is true
+		final boolean anyMods = anyExceptCtrl || ctrl; // if any modifier is down this is true
+		final boolean anyExceptShift = alt || altGr || meta || ctrl; // if any modifier but shift is down this is true
 		if(input instanceof KeyInput) {
 			final KeyInput keyInput = (KeyInput) input;
 			final KeyInput.Type keyType = keyInput.getType();
 			final int keyCode = keyInput.getKeyCode();
 			final char keyChar = keyInput.getKeyChar();
 
-			if(keyCode == KeyEvent.VK_LEFT && !allButCtrlAndShift) {
+			if(keyCode == KeyEvent.VK_LEFT && !anyExceptCtrlOrShift) {
 				// if you're holding shift select stuff
 				// ctrl is passed through to the word variable
 				if(shift) {
@@ -59,7 +59,7 @@ public class BasicMode extends Mode implements ClipboardOwner {
 					// otherwise just move the cursor(s)
 					new CommandRun(poke, buffer, MoveLRCommand.get(), JSArray.of(-1, ctrl)).invoke();
 				}
-			} else if(keyCode == KeyEvent.VK_RIGHT && !allButCtrlAndShift) {
+			} else if(keyCode == KeyEvent.VK_RIGHT && !anyExceptCtrlOrShift) {
 				// if you're holding shift select stuff
 				// ctrl is passed through to the word variable
 				if(shift) {
@@ -68,16 +68,16 @@ public class BasicMode extends Mode implements ClipboardOwner {
 					// otherwise just move the cursor(s)
 					new CommandRun(poke, buffer, MoveLRCommand.get(), JSArray.of(1, ctrl)).invoke();
 				}
-			} else if(keyCode == KeyEvent.VK_DOWN && !allMods) {
+			} else if(keyCode == KeyEvent.VK_DOWN && !anyMods) {
 				new CommandRun(poke, buffer, MoveUDCommand.get(), JSArray.of(1)).invoke();
-			} else if(keyCode == KeyEvent.VK_UP && !allMods) {
+			} else if(keyCode == KeyEvent.VK_UP && !anyMods) {
 				new CommandRun(poke, buffer, MoveUDCommand.get(), JSArray.of(-1)).invoke();
-			} else if(keyCode == KeyEvent.VK_BACK_SPACE && !allMods) {
+			} else if(keyCode == KeyEvent.VK_BACK_SPACE && !anyMods) {
 				// remove one character back (length of -1)
 				new CommandRun(poke, buffer, RemoveCommand.get(), JSArray.of(-1)).invoke();
-			} else if(keyCode == KeyEvent.VK_DELETE && !allMods) {
+			} else if(keyCode == KeyEvent.VK_DELETE && !anyMods) {
 				new CommandRun(poke, buffer, RemoveCommand.get(), JSArray.of(1)).invoke();
-			} else if(keyCode == KeyEvent.VK_S && ctrl && !allButCtrlAndShift) {
+			} else if(keyCode == KeyEvent.VK_S && ctrl && !anyExceptCtrlOrShift) {
 				String path = null;
 				// try to use an existing path if shift isn't down
 				if(!shift) {
@@ -88,13 +88,13 @@ public class BasicMode extends Mode implements ClipboardOwner {
 					// open a file picker
 					JFileChooser chooser = new JFileChooser();
 					chooser.setCurrentDirectory(new File("."));
-					if(chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+					if(chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
 						path = chooser.getSelectedFile().getAbsolutePath();
 					}
 				}
 				logger.debug("saving to {}", path);
 				new CommandRun(poke, buffer, SaveCommand.get(), JSArray.of(path)).invoke();
-			} else if(keyCode == KeyEvent.VK_O && ctrl && !allButCtrl) {
+			} else if(keyCode == KeyEvent.VK_O && ctrl && !anyExceptCtrl) {
 				JFileChooser chooser = new JFileChooser();
 				chooser.setCurrentDirectory(new File("."));
 				if(chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
@@ -103,7 +103,7 @@ public class BasicMode extends Mode implements ClipboardOwner {
 					input.getActiveUI().replace(input.getActiveUI().getPokeUI().createBufferUI(newBuffer));
 					new CommandRun(poke, newBuffer, LoadCommand.get(), JSArray.of(chooser.getSelectedFile().getAbsolutePath())).invoke();
 				}
-			} else if(keyCode == KeyEvent.VK_C && ctrl && !allButCtrl) {
+			} else if(keyCode == KeyEvent.VK_C && ctrl && !anyExceptCtrl) {
 				// get all the selected text and combine it
 				String copied = "";
 				int line = -1;
@@ -118,7 +118,7 @@ public class BasicMode extends Mode implements ClipboardOwner {
 					}
 				}
 				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(copied), this);
-			} else if(keyCode == KeyEvent.VK_V && ctrl && !allButCtrl) {
+			} else if(keyCode == KeyEvent.VK_V && ctrl && !anyExceptCtrl) {
 				// get the contents
 				Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
 				// if it has a string
@@ -132,16 +132,16 @@ public class BasicMode extends Mode implements ClipboardOwner {
 						e.printStackTrace();
 					}
 				}
-			} else if(keyCode == KeyEvent.VK_HOME && !allButCtrl) {
+			} else if(keyCode == KeyEvent.VK_HOME && !anyExceptCtrl) {
 				// large movements back (if ctrl is down go all the way back to the start of the buffer)
 				new CommandRun(poke, buffer, LargeMoveLRCommand.get(), JSArray.of(ctrl ? -2 : -1)).invoke();
-			} else if(keyCode == KeyEvent.VK_END && !allButCtrl) {
+			} else if(keyCode == KeyEvent.VK_END && !anyExceptCtrl) {
 				// large movements forwards (if ctrl is down go all the way to the end of the buffer)
 				new CommandRun(poke, buffer, LargeMoveLRCommand.get(), JSArray.of(ctrl ? 2 : 1)).invoke();
-			} else if(keyCode == KeyEvent.VK_BACK_SLASH && ctrl && shift && !allButCtrlAndShift) {
+			} else if(keyCode == KeyEvent.VK_BACK_SLASH && ctrl && shift && !anyExceptCtrlOrShift) {
 				input.getActiveUI().splitH();
 			// if no modifiers are down and the char isn't backspace or delete
-			} else if(keyType == KeyInput.Type.type && !allButShift && keyChar != '\b' && keyChar != '\u007F') {
+			} else if(keyType == KeyInput.Type.type && !anyExceptShift && keyChar != '\b' && keyChar != '\u007F') {
 				// then insert it
 				new CommandRun(poke, buffer, InsertCommand.get(), JSArray.of(Character.toString(keyInput.getKeyChar()))).invoke();
 			} else {
