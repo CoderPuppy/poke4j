@@ -2,7 +2,7 @@ apply plugin: 'java'
 
 archivesBaseName = 'poke4j'
 group = 'cpup.poke4j'
-version = 'dev'
+version = '0.0.0'
 
 repositories {
 	mavenLocal()
