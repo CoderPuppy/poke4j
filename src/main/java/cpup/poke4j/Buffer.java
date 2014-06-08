@@ -136,6 +136,7 @@ public abstract class Buffer {
 	}
 
 	public final EventRegister<Cursor.MoveEvent> moveCursorEv = new EventRegister<Cursor.MoveEvent>();
+	public final EventRegister<Cursor.SelectEvent> selectCursorEv = new EventRegister<Cursor.SelectEvent>();
 
 	// Fired when an operation is applied (whether it's added to the history or not)
 	public final EventRegister<ApplyOperationEvent> applyOperationEv = new EventRegister<ApplyOperationEvent>();

@@ -14,22 +14,11 @@ public class InsertCommand implements ICommand {
 		final String text = run.args().get(0, String.class);
 		final Buffer buffer = run.getBuffer();
 		for(Cursor cursor : buffer.getCursors()) {
-			// if something is selected
-			if(cursor.getSelection() != null) {
-				// remove it
-				final List<String> lines = cursor.getSelection().getLines();
-				int length = lines.size() - 1; // number of new lines
-				for(String line : lines) {
-					// + the lengths of all the lines
-					length += line.length();
-				}
-				// remove all that
-				cursor.getSelection().remove(new BufferPos(0, 0), length);
-			}
-			// and deselect whatever might be selected
-			cursor.setSelection(null);
+			cursor.removeSelection();
 			buffer.insert(cursor.getPos(), text);
 			cursor.move(text.length());
+			// and deselect whatever might be selected
+			cursor.clearSelection();
 		}
 	}
 

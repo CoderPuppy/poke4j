@@ -16,7 +16,7 @@ public class MoveUDCommand implements ICommand {
 		final boolean up = (dist / amt) == -1;
 		for(Cursor cursor : run.getBuffer().getCursors()) {
 			for(int i = 0; i < amt; i++) {
-				cursor.setSelection(null);
+				cursor.clearSelection();
 				final int line = cursor.getPos().getLine();
 				final int column = cursor.getPos().getColumn();
 				if(up) {

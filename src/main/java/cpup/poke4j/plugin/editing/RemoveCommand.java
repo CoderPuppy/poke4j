@@ -28,7 +28,7 @@ public class RemoveCommand implements ICommand {
 				}
 				buffer.remove(pos, length);
 			}
-			cursor.setSelection(null);
+			cursor.clearSelection();
 		}
 	}
 

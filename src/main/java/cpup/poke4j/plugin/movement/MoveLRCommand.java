@@ -12,7 +12,7 @@ public class MoveLRCommand implements ICommand {
 		final boolean word = run.args().get(1, Boolean.class, Boolean.FALSE);
 		for(Cursor cursor : run.getBuffer().getCursors()) {
 			// clear the selection
-			cursor.setSelection(null);
+			cursor.clearSelection();
 			if(word) {
 				cursor.moveWord(dist);
 			} else {

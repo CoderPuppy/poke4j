@@ -51,32 +51,69 @@ public class BasicMode extends Mode implements ClipboardOwner {
 			final char keyChar = keyInput.getKeyChar();
 
 			if(keyCode == KeyEvent.VK_LEFT && !anyExceptCtrlOrShift) {
-				// if you're holding shift select stuff
-				// ctrl is passed through to the word variable
-				if(shift) {
-					new CommandRun(poke, buffer, SelectCommand.get(), JSArray.of(-1, -1, ctrl)).invoke();
-				} else {
-					// otherwise just move the cursor(s)
-					new CommandRun(poke, buffer, MoveLRCommand.get(), JSArray.of(-1, ctrl)).invoke();
+				for(Cursor cursor : buffer.getCursors()) {
+					if(ctrl)
+						cursor.moveWord(-1);
+					else
+						cursor.move(-1);
+
+					if(!shift)
+						cursor.clearSelection();
 				}
 			} else if(keyCode == KeyEvent.VK_RIGHT && !anyExceptCtrlOrShift) {
-				// if you're holding shift select stuff
-				// ctrl is passed through to the word variable
-				if(shift) {
-					new CommandRun(poke, buffer, SelectCommand.get(), JSArray.of(-1, 1, ctrl)).invoke();
-				} else {
-					// otherwise just move the cursor(s)
-					new CommandRun(poke, buffer, MoveLRCommand.get(), JSArray.of(1, ctrl)).invoke();
+				for(Cursor cursor : buffer.getCursors()) {
+					if(ctrl)
+						cursor.moveWord(1);
+					else
+						cursor.move(1);
+
+					if(!shift)
+						cursor.clearSelection();
 				}
-			} else if(keyCode == KeyEvent.VK_DOWN && !anyMods) {
-				new CommandRun(poke, buffer, MoveUDCommand.get(), JSArray.of(1)).invoke();
-			} else if(keyCode == KeyEvent.VK_UP && !anyMods) {
-				new CommandRun(poke, buffer, MoveUDCommand.get(), JSArray.of(-1)).invoke();
-			} else if(keyCode == KeyEvent.VK_BACK_SPACE && !anyMods) {
-				// remove one character back (length of -1)
-				new CommandRun(poke, buffer, RemoveCommand.get(), JSArray.of(-1)).invoke();
+			} else if(keyCode == KeyEvent.VK_DOWN && !anyExceptShift) {
+				for(Cursor cursor : buffer.getCursors()) {
+					cursor.moveUD(1);
+
+					if(!shift)
+						cursor.clearSelection();
+				}
+			} else if(keyCode == KeyEvent.VK_UP && !anyExceptShift) {
+				for(Cursor cursor : buffer.getCursors()) {
+					cursor.moveUD(-1);
+
+					if(!shift)
+						cursor.clearSelection();
+				}
+			} else if(keyCode == KeyEvent.VK_BACK_SPACE && !anyExceptCtrl) {
+				for(Cursor cursor : buffer.getCursors()) {
+					if(cursor.getSelection() == null) {
+						int len;
+						if(ctrl) {
+							len = -cursor.getPos().getRightWordLength(buffer);
+						} else {
+							len = -1;
+						}
+						buffer.remove(cursor.getPos(), len);
+						cursor.move(len);
+						cursor.clearSelection();
+					} else {
+						cursor.removeSelection();
+					}
+				}
 			} else if(keyCode == KeyEvent.VK_DELETE && !anyMods) {
-				new CommandRun(poke, buffer, RemoveCommand.get(), JSArray.of(1)).invoke();
+				for(Cursor cursor : buffer.getCursors()) {
+					if(cursor.getSelection() == null) {
+						int len;
+						if(ctrl) {
+							len = cursor.getPos().getLeftWordLength(buffer);
+						} else {
+							len = 1;
+						}
+						buffer.remove(cursor.getPos(), len);
+					} else {
+						cursor.removeSelection();
+					}
+				}
 			} else if(keyCode == KeyEvent.VK_S && ctrl && !anyExceptCtrlOrShift) {
 				String path = null;
 				// try to use an existing path if shift isn't down
@@ -132,9 +169,8 @@ public class BasicMode extends Mode implements ClipboardOwner {
 						e.printStackTrace();
 					}
 				}
-			} else if(keyCode == KeyEvent.VK_HOME && !anyExceptCtrl) {
-				// large movements back (if ctrl is down go all the way back to the start of the buffer)
-				new CommandRun(poke, buffer, LargeMoveLRCommand.get(), JSArray.of(ctrl ? -2 : -1)).invoke();
+			} else if(keyCode == KeyEvent.VK_HOME && !anyExceptCtrlOrShift) {
+
 			} else if(keyCode == KeyEvent.VK_END && !anyExceptCtrl) {
 				// large movements forwards (if ctrl is down go all the way to the end of the buffer)
 				new CommandRun(poke, buffer, LargeMoveLRCommand.get(), JSArray.of(ctrl ? 2 : 1)).invoke();
@@ -143,7 +179,12 @@ public class BasicMode extends Mode implements ClipboardOwner {
 			// if no modifiers are down and the char isn't backspace or delete
 			} else if(keyType == KeyInput.Type.type && !anyExceptShift && keyChar != '\b' && keyChar != '\u007F') {
 				// then insert it
-				new CommandRun(poke, buffer, InsertCommand.get(), JSArray.of(Character.toString(keyInput.getKeyChar()))).invoke();
+				for(Cursor cursor : buffer.getCursors()) {
+					cursor.removeSelection();
+					buffer.insert(cursor.getPos(), Character.toString(keyChar));
+					cursor.move(1);
+					cursor.clearSelection();
+				}
 			} else {
 				logger.debug("Unhandled KeyInput: {} {} ({}), char = {}", keyType.toString(), KeyEvent.getKeyText(keyCode), keyCode, keyChar);
 			}

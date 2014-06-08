@@ -69,8 +69,26 @@ public class BufferPos {
 		return new BufferPos(column, line);
 	}
 
-	protected final Pattern leftTextRE = Pattern.compile("(?:[a-zA-Z]+\\s*|[^a-zA-Z])$");
-	protected final Pattern rightTextRE = Pattern.compile("^(?:\\s*[a-zA-Z]+|[^a-zA-Z])");
+	protected final Pattern rightWordRE = Pattern.compile("(?:[a-zA-Z]+\\s*|[^a-zA-Z])$");
+	protected final Pattern leftWordRE = Pattern.compile("^(?:\\s*[a-zA-Z]+|[^a-zA-Z])");
+
+	public int getRightWordLength(Buffer buffer) {
+		final Matcher textMatch = rightWordRE.matcher(buffer.getLine(line).substring(0, column));
+		if(textMatch.find()) {
+			return textMatch.end() - textMatch.start();
+		} else {
+			return 0;
+		}
+	}
+
+	public int getLeftWordLength(Buffer buffer) {
+		final Matcher textMatch = leftWordRE.matcher(buffer.getLine(line).substring(column));
+		if(textMatch.find()) {
+			return textMatch.end();
+		} else {
+			return 0;
+		}
+	}
 
 	public BufferPos moveWord(Buffer buffer, int dist) {
 		BufferPos pos = this;
@@ -87,7 +105,7 @@ public class BufferPos {
 					// if this is the first column then try to move up a line (one character)
 					moveAmt = 1;
 				} else {
-					final Matcher textMatch = leftTextRE.matcher(sline.substring(0, column));
+					final Matcher textMatch = rightWordRE.matcher(sline.substring(0, column));
 					if(textMatch.find()) {
 						// move back however much the pattern matched (end - start should be positive)
 						moveAmt += textMatch.end() - textMatch.start();
@@ -98,7 +116,7 @@ public class BufferPos {
 					// move down a line (one character)
 					moveAmt = 1;
 				} else {
-					final Matcher textMatch = rightTextRE.matcher(sline.substring(column));
+					final Matcher textMatch = leftWordRE.matcher(sline.substring(column));
 					if(textMatch.find()) {
 						// move forward however much the pattern matched
 						moveAmt += textMatch.end();
@@ -109,6 +127,13 @@ public class BufferPos {
 			pos = move(buffer, moveAmt * dir);
 		}
 		return pos;
+	}
+
+	public BufferPos moveUD(Buffer buffer, int dist) {
+		int column = getColumn();
+		int line = getLine();
+		line += dist;
+		return new BufferPos(column, line).find(buffer);
 	}
 
 	// Getters and Setters

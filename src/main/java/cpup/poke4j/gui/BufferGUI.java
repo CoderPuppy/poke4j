@@ -23,6 +23,7 @@ public class BufferGUI extends GUI implements KeyListener, MouseListener, MouseM
 
 	protected EventHandler<Buffer.ApplyOperationEvent> applyOperationHandler;
 	protected EventHandler<Cursor.MoveEvent> moveCursorHandler;
+	protected EventHandler<Cursor.SelectEvent> selectCursorHandler;
 
 	public BufferGUI(MainWindow _mainWindow, GUI _parent, Buffer _buffer) {
 		super(_mainWindow, _parent);
@@ -47,10 +48,15 @@ public class BufferGUI extends GUI implements KeyListener, MouseListener, MouseM
 				repaint();
 			}
 		});
-
 		buffer.moveCursorEv.listen(moveCursorHandler = new EventHandler<Cursor.MoveEvent>() {
 			@Override
 			public void handle(Cursor.MoveEvent e) {
+				repaint();
+			}
+		});
+		buffer.selectCursorEv.listen(selectCursorHandler = new EventHandler<Cursor.SelectEvent>() {
+			@Override
+			public void handle(Cursor.SelectEvent e) {
 				repaint();
 			}
 		});
@@ -60,6 +66,7 @@ public class BufferGUI extends GUI implements KeyListener, MouseListener, MouseM
 	public void cleanup() {
 		buffer.applyOperationEv.unlisten(applyOperationHandler);
 		buffer.moveCursorEv.unlisten(moveCursorHandler);
+		buffer.selectCursorEv.unlisten(selectCursorHandler);
 	}
 
 	@Override
